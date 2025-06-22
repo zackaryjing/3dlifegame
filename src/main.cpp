@@ -28,10 +28,10 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     float vertices[] = {
-            0.5f, 0.5f, 0.0f,
-            0.0f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            -0.5f, 0.5f, 0.0f
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.0f, 0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 
     };
 
@@ -62,11 +62,14 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,GL_STATIC_DRAW);
 
     // vertex attributes pointers
-    glVertexAttribPointer(0, 3,GL_FLOAT,GL_FALSE, 3 * sizeof(float), reinterpret_cast<void *>(0));
-
+    glVertexAttribPointer(0, 3,GL_FLOAT,GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(0));
     // vertex attribute location
     glEnableVertexAttribArray(0);
 
+    // vertex attributes pointers
+    glVertexAttribPointer(1, 3,GL_FLOAT,GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    // vertex attribute location
+    glEnableVertexAttribArray(1);
 
     unsigned int shaderProgram = genShaderProgram();
     glUseProgram(shaderProgram);
