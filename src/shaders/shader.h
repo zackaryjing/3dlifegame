@@ -4,17 +4,21 @@
 inline auto vertexShaderSource =
         "#version 330 core\n"
         "layout (location = 0) in vec3 aPos;\n"
+        "out vec4 vertexColor;\n"
         "void main()\n"
         "{\n"
-        "   gl_Position = vec4(aPos.x,aPos.y,aPos.z,1.0);\n"
+        "   gl_Position = vec4(aPos,1.0);\n"
+        "   vertexColor = vec4(0.5,0.0,0.0,1.0);\n"
         "}\0";
 
 inline auto fragmentShaderSource =
         "#version 330 core\n"
         "out vec4 FragColor;\n"
+        "in vec4 vertexColor;\n"
+        "uniform vec4 ourColor;\n"
         "void main()\n"
         "{\n"
-        "   FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
+        "   FragColor = ourColor;\n"
         "}\n";
 
 inline unsigned int genVertexShader() {
@@ -28,7 +32,7 @@ inline unsigned int genVertexShader() {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infolog);
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << std::endl;
     } else {
-        std::cout << "INFO::SHADER::VERTEX::COMPILATION_SUCCESS\n" << std::endl;
+        std::cout << "INFO::SHADER::VERTEX::COMPILATION_SUCCESS" << std::endl;
     }
     return vertexShader;
 }
@@ -44,7 +48,7 @@ inline unsigned int genFragmentShader() {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infolog);
         std::cerr << "ERROR::SHADER::fragment::COMPILATION_FAILED\n" << infolog << std::endl;
     } else {
-        std::cout << "INFO::SHADER::fragment::COMPILATION_SUCCESS\n" << std::endl;
+        std::cout << "INFO::SHADER::fragment::COMPILATION_SUCCESS" << std::endl;
     }
     return fragmentShader;
 }
