@@ -1,66 +1,23 @@
 #pragma once
 #include <iostream>
+#include <string>
 
-inline auto vertexShaderSource =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "layout (location = 1) in vec3 aColor;\n"
-        "out vec3 ourColor;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos,1.0);\n"
-        "   ourColor = aColor;\n"
-        "}\0";
+using std::string;
+using std::ifstream;
+using std::stringstream;
+using std::cerr;
+using std::cout;
+using std::endl;
 
-inline auto fragmentShaderSource =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "in vec3 ourColor;\n"
-        "void main()\n"
-        "{\n"
-        "   FragColor = vec4(ourColor,1.0);\n"
-        "}\n";
+class Shader {
+public:
+    unsigned int ID;
+    Shader(const char *vertexPath, const char *fragmentPath);
+    void use() const;
+    void setBool(const string &name, bool value) const;
+    void setInt(const string &name, int value) const;
 
-inline unsigned int genVertexShader() {
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    int vertexCompileSuccess;
-    char infolog[512];
-    glGetShaderiv(vertexShader,GL_COMPILE_STATUS, &vertexCompileSuccess);
-    if (not vertexCompileSuccess) {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infolog);
-        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << std::endl;
-    } else {
-        std::cout << "INFO::SHADER::VERTEX::COMPILATION_SUCCESS" << std::endl;
-    }
-    return vertexShader;
-}
+    void setFloat(const string &name, const std::initializer_list<float> &value) const;
+    void setFloat(const string &name, float value) const;
 
-inline unsigned int genFragmentShader() {
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-    int fragmentCompileSuccess;
-    char infolog[512];
-    glGetShaderiv(fragmentShader,GL_COMPILE_STATUS, &fragmentCompileSuccess);
-    if (not fragmentCompileSuccess) {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infolog);
-        std::cerr << "ERROR::SHADER::fragment::COMPILATION_FAILED\n" << infolog << std::endl;
-    } else {
-        std::cout << "INFO::SHADER::fragment::COMPILATION_SUCCESS" << std::endl;
-    }
-    return fragmentShader;
-}
-
-inline unsigned int genShaderProgram() {
-    const unsigned int vertexShader = genVertexShader();
-    const unsigned int fragmentShader = genFragmentShader();
-    const unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    return shaderProgram;
-}
+};

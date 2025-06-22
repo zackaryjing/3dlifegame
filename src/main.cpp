@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include "shaders/shader.h"
 #include "init.h"
+#ifndef GLSL_DIR
+#define GLSL_DIR "../src/shaders/"  // fallback: 编辑器静态分析用
+#endif
 
 using namespace std;
 
@@ -71,14 +74,15 @@ int main() {
     // vertex attribute location
     glEnableVertexAttribArray(1);
 
-    unsigned int shaderProgram = genShaderProgram();
-    glUseProgram(shaderProgram);
 
+    // const Shader ourShader("./shaders/shader.fs", "./shaders/shader.vs");
+    const Shader ourShader(GLSL_DIR "/shader.vs", GLSL_DIR "/shader.fs");
+
+    ourShader.use();
 
     // bind vertex array object
     glBindVertexArray(VAO);
 
-    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     // glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -89,7 +93,7 @@ int main() {
 
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        // ourShader.setFloat("greenColor", {0.0f, greenValue, 0.0f});
 
         // draw triangles
         // glDrawArrays(GL_TRIANGLES, 0, 6);
