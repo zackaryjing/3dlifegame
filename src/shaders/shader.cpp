@@ -1,0 +1,117 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <glad/glad.h>
+#include "shader.h"
+
+using std::string;
+using std::ifstream;
+using std::stringstream;
+using std::cerr;
+using std::cout;
+using std::endl;
+
+Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+    string vertexCode;
+    string fragmentCode;
+    ifstream vShaderFile;
+    ifstream fShaderFile;
+    // throw an exception if failed or path is bad
+    vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+    fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+    try {
+        vShaderFile.open(vertexPath);
+        fShaderFile.open(fragmentPath);
+        stringstream vShaderStream, fShaderStream;
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+        vShaderFile.close();
+        fShaderFile.close();
+        vertexCode = vShaderStream.str();
+        fragmentCode = fShaderStream.str();
+    } catch (ifstream::failure e) {
+        cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
+    }
+    const char *vShaderCode = vertexCode.c_str();
+    const char *fShaderCode = fragmentCode.c_str();
+
+
+    char infoLog[512];
+
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vShaderCode, nullptr);
+    glCompileShader(vertexShader);
+    int vertexCompileSuccess;
+    glGetShaderiv(vertexShader,GL_COMPILE_STATUS, &vertexCompileSuccess);
+    if (not vertexCompileSuccess) {
+        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    } else {
+        std::cout << "INFO::SHADER::VERTEX::COMPILATION_SUCCESS" << std::endl;
+    }
+
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fShaderCode, nullptr);
+    glCompileShader(fragmentShader);
+    int fragmentCompileSuccess;
+    glGetShaderiv(fragmentShader,GL_COMPILE_STATUS, &fragmentCompileSuccess);
+    if (not fragmentCompileSuccess) {
+        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+        std::cerr << "ERROR::SHADER::fragment::COMPILATION_FAILED\n" << infoLog << std::endl;
+    } else {
+        std::cout << "INFO::SHADER::fragment::COMPILATION_SUCCESS" << std::endl;
+    }
+
+    ID = glCreateProgram();
+    glAttachShader(ID, vertexShader);
+    glAttachShader(ID, fragmentShader);
+    glLinkProgram(ID);
+    int programLinkSuccess;
+    glGetProgramiv(ID,GL_LINK_STATUS, &programLinkSuccess);
+    if (not programLinkSuccess) {
+        glGetProgramInfoLog(ID, 512, nullptr, infoLog);
+        cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << endl;
+    }
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+}
+
+void Shader::use() const {
+    glUseProgram(ID);
+}
+
+void Shader::setBool(const string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), static_cast<int>(value));
+}
+
+void Shader::setInt(const string &name, int value) const {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+
+void Shader::setFloat(const string &name, float value) const {
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setFloat(const string &name, const std::initializer_list<float> &value) const {
+    switch (value.size()) {
+        case 1:
+            glUniform1f(glGetUniformLocation(ID, name.c_str()), *value.begin());
+            break;
+        case 2:
+            glUniform2f(glGetUniformLocation(ID, name.c_str()), *value.begin(), *(value.begin() + 1));
+            break;
+        case 3:
+            glUniform3f(glGetUniformLocation(ID, name.c_str()), *value.begin(), *(value.begin() + 1),
+                        *(value.begin() + 2));
+            break;
+        case 4:
+            glUniform4f(glGetUniformLocation(ID, name.c_str()), *value.begin(), *(value.begin() + 1),
+                        *(value.begin() + 2), *(value.begin() + 3));
+            break;
+        default:
+            break;
+    }
+}
