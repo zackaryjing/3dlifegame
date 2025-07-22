@@ -12,8 +12,7 @@
 
 using namespace std;
 
-
-int main() {
+int draw_triangles() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -31,11 +30,9 @@ int main() {
     }
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    float vertices[] = {
-            0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0, 1.0f, //
-            0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0, 0.0f, //
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0, 0.0f, //
-            -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0, 1.0f,
+    float vertices[] = {0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, -0.5f,
+                        -0.5f, 0.0f,  0.5f, 0.5f, 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+
     };
 
     int nrAttributes;
@@ -64,9 +61,14 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // vertex attributes pointers
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(0));
     // vertex attribute location
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(0);
+
+    // vertex attributes pointers
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    // vertex attribute location
+    glEnableVertexAttribArray(1);
 
 
     // const Shader ourShader("./shaders/shader.fs", "./shaders/shader.vs");
@@ -101,3 +103,7 @@ int main() {
 
     return 0;
 }
+
+//
+// Created by ASUS on 7/19/2025.
+//
