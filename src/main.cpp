@@ -1,4 +1,3 @@
-#include <GLFW/glfw3.h>
 #include <cmath>
 #include <glad/glad.h>
 #include <iostream>
@@ -6,6 +5,7 @@
 #include "init.h"
 #include "shaders/shader.h"
 #include "texture/load_texture.h"
+#include <glm/glm.hpp>
 #ifndef GLSL_DIR
 #define GLSL_DIR "../src/shaders/" // fallback: 编辑器静态分析用
 #endif
@@ -18,14 +18,16 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_ANY_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow *window = glfwCreateWindow(800, 600, "LifeGame", nullptr, nullptr);
+    GLFWwindow *window =
+            glfwCreateWindow(800, 600, "LifeGame", nullptr, nullptr);
     if (window == nullptr) {
         cerr << "Failed to create GLFW window" << endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
-    if (not gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+    if (not gladLoadGLLoader(
+                reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
         return -1;
     }
@@ -33,14 +35,15 @@ int main() {
 
     float vertices[] = {
             0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0, 1.0f, //
-            0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0, 0.0f, //
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0, 0.0f, //
+            0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0, 0.0f, //
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0, 0.0f, //
             -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0, 1.0f,
     };
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    cout << "Maximum nr of vertex attributes supported: " << nrAttributes << endl;
+    cout << "Maximum nr of vertex attributes supported: " << nrAttributes
+         << endl;
 
     unsigned int indices[] = {
             0, 1, 3, 1, 2, 3,
@@ -61,22 +64,40 @@ int main() {
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STATIC_DRAW);
+
 
     // vertex attributes pointers
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          reinterpret_cast<void *>(0 * sizeof(float)));
+    // vertex attribute location
+    glEnableVertexAttribArray(0);
+
+    // vertex attributes pointers
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          reinterpret_cast<void *>(3 * sizeof(float)));
+    // vertex attribute location
+    glEnableVertexAttribArray(1);
+
+    // vertex attributes pointers
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          reinterpret_cast<void *>(6 * sizeof(float)));
     // vertex attribute location
     glEnableVertexAttribArray(2);
 
 
     // const Shader ourShader("./shaders/shader.fs", "./shaders/shader.vs");
-    const Shader ourShader(GLSL_DIR "/shader.vs", GLSL_DIR "/shader.fs");
+    const Shader ourShader(GLSL_DIR "shader.vs", GLSL_DIR "shader.fs");
 
     ourShader.use();
 
-    // bind vertex array object
-    glBindVertexArray(VAO);
+    unsigned int texture = create_brick_wall_texture();
 
+    glActiveTexture(GL_TEXTURE0); // activate texture unit first
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindVertexArray(VAO);
+    ourShader.setInt("ourTexture", 0);
 
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     // glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -91,7 +112,8 @@ int main() {
 
         // draw triangles
         // glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
         glfwSwapBuffers(window);
