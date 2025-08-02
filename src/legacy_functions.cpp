@@ -72,7 +72,7 @@ int draw_triangles() {
 
 
     // const Shader ourShader("./shaders/shader.fs", "./shaders/shader.vs");
-    const Shader ourShader(GLSL_DIR "/shader.vs", GLSL_DIR "/shader.fs");
+    const Shader ourShader(GLSL_DIR "shader.vs", GLSL_DIR "shader.fs");
 
     ourShader.use();
 

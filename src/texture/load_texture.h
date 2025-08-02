@@ -1,9 +1,18 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
+#include <glad/glad.h>
+#include <iostream>
+#ifndef TEXTURE_DIR
+#define TEXTURE_DIR "../../assets/texture/"
+#endif
+
+
+using std::cerr;
+using std::endl;
+
 #include "../../deps/stb/stb_image.h"
 
-inline void create_brick_wall_texture() {
-
+inline unsigned int create_brick_wall_texture() {
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -14,7 +23,7 @@ inline void create_brick_wall_texture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("../../assets/brick_wall.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(TEXTURE_DIR "brick_wall.jpg", &width, &height, &nrChannels, 0);
 
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -24,4 +33,5 @@ inline void create_brick_wall_texture() {
     }
 
     stbi_image_free(data);
+    return texture;
 }
