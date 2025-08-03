@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <glm/glm.hpp>
 
 using std::string;
 using std::ifstream;
@@ -19,5 +20,6 @@ public:
 
     void setFloat(const string &name, const std::initializer_list<float> &value) const;
     void setFloat(const string &name, float value) const;
+    void setMatrix4(const string &name, glm::mat4 value) const;
 
 };
