@@ -1,11 +1,12 @@
 #include <cmath>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <unistd.h>
 #include "init.h"
 #include "shaders/shader.h"
 #include "texture/load_texture.h"
-#include <glm/glm.hpp>
 #ifndef GLSL_DIR
 #define GLSL_DIR "../src/shaders/" // fallback: 编辑器静态分析用
 #endif
@@ -99,6 +100,17 @@ int main() {
     glBindVertexArray(VAO);
     ourShader.setInt("ourTexture", 0);
 
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f),
+                        glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f,
+                                  100.0f);
+
+
     // glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
     // glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     while (not glfwWindowShouldClose(window)) {
@@ -110,6 +122,9 @@ int main() {
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         ourShader.setFloat("greenColor", {0.0f, greenValue, 0.0f});
 
+        ourShader.setMatrix4("model", model);
+        ourShader.setMatrix4("view", view);
+        ourShader.setMatrix4("projection", projection);
         // draw triangles
         // glDrawArrays(GL_TRIANGLES, 0, 6);
 
