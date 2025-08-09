@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../shaders/shader.h"
-#include "../texture/load_texture.h"
+#include "../shaders/shader.hpp"
+#include "../texture/textureLoader.hpp"
 
 struct CubeEBO {
     static constexpr float vertices[] = {

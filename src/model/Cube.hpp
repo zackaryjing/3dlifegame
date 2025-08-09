@@ -5,12 +5,12 @@
 #endif
 
 #include <GLFW/glfw3.h>
-#include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
-#include "../init.h"
-#include "../shaders/shader.h"
-#include "../texture/load_texture.h"
+#include "shaders/shader.hpp"
+#include "texture/textureLoader.hpp"
+#include "ui/KeyboardInput.hpp"
 
 struct Cube {
     static constexpr float vertices[] = {
@@ -142,24 +142,22 @@ struct Cube {
         ourShader.setInt("ourTexture", 0);
 
 
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f,
-                                      0.1f, 100.0f);
-
-
         const glm::vec3 lightDir = normalize(glm::vec3{1, 1, 2});
+        float deltaTime = 0.0f;
+        float lastFrame = 0.0f;
+
         while (not glfwWindowShouldClose(window)) {
-            auto model = glm::mat4(1.0f);
-            model = glm::rotate(model,
-                                static_cast<float>(glfwGetTime()) *
-                                        glm::radians(50.0f),
-                                glm::vec3(0.5f, 1.0f, 0.0f));
+            processInput(window, deltaTime);
+            const glm::mat4 model = glm::rotate(
+                    glm::mat4(1.0f),
+                    static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
+                    glm::vec3(0.5f, 1.0f, 0.0f));
+
+            const glm::mat4 view = Camera::getView();
+            const glm::mat4 projection = Camera::getProjection();
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            processInput(window);
 
             ourShader.setVec3("lightDir", lightDir);
             ourShader.setMatrix4("model", model);
@@ -171,6 +169,10 @@ struct Cube {
             glfwSwapBuffers(window);
             glfwPollEvents();
             glfwSwapInterval(1);
+
+            const float currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
         }
     }
 };
