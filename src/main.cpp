@@ -4,8 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <unistd.h>
-#include "init.h"
 #include "model/Cube.hpp"
+#include "ui/keyboardInput.hpp"
+#include "ui/mouseInput.hpp"
 
 using namespace std;
 
@@ -35,6 +36,10 @@ int main() {
     cout << "Maximum number of vertex attributes supported: " << nrAttributes
          << endl;
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetCursorPosCallback(window, Cursor::mouse_callback);
+    glfwSetScrollCallback(window, Cursor::scroll_callback);
     Cube::render(window);
 
     return 0;
