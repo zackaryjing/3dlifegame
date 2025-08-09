@@ -18,3 +18,6 @@ set(GLSL_FILES
 
 add_definitions(-DGLSL_DIR="${CMAKE_SOURCE_DIR}/src/shaders/")
 add_definitions(-DTEXTURE_DIR="${CMAKE_SOURCE_DIR}/assets/texture/")
+
+
+add_executable(LifeGame2dTest src/tests/testLogic.cpp)
