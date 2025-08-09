@@ -14,35 +14,42 @@ using std::ifstream;
 using std::string;
 using std::stringstream;
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath) {
-    string vertexCode;
-    string fragmentCode;
-    ifstream vShaderFile;
-    ifstream fShaderFile;
-    // throw an exception if failed or path is bad
-    vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-    fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-    try {
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
-        stringstream vShaderStream, fShaderStream;
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-        vShaderFile.close();
-        fShaderFile.close();
-        vertexCode = vShaderStream.str();
-        fragmentCode = fShaderStream.str();
-    } catch (ifstream::failure e) {
-        cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
-    }
-    const char *vShaderCode = vertexCode.c_str();
-    const char *fShaderCode = fragmentCode.c_str();
+Shader::Shader(string vertexShaderParam, string fragmentShaderParam,
+               ShaderParamType type) {
 
+    string vShaderCode;
+    string fShaderCode;
+    if (type == ShaderParamType::PATH) {
+        ifstream vShaderFile;
+        ifstream fShaderFile;
+        // throw an exception if failed or path is bad
+        vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+        fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+        try {
+            vShaderFile.open(vertexShaderParam);
+            fShaderFile.open(fragmentShaderParam);
+            stringstream vShaderStream, fShaderStream;
+            vShaderStream << vShaderFile.rdbuf();
+            fShaderStream << fShaderFile.rdbuf();
+            vShaderFile.close();
+            fShaderFile.close();
+            vShaderCode = vShaderStream.str();
+            fShaderCode = fShaderStream.str();
+        } catch (ifstream::failure e) {
+            cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
+            throw;
+        }
+    } else {
+        vShaderCode = vertexShaderParam;
+        fShaderCode = fragmentShaderParam;
+    }
 
     char infoLog[512];
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vShaderCode, nullptr);
+    const char *vShaderPointer = vShaderCode.c_str();
+    const char *fShaderPointer = fShaderCode.c_str();
+    glShaderSource(vertexShader, 1, &vShaderPointer, nullptr);
     glCompileShader(vertexShader);
     int vertexCompileSuccess;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexCompileSuccess);
@@ -55,7 +62,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     }
 
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fShaderCode, nullptr);
+    glShaderSource(fragmentShader, 1, &fShaderPointer, nullptr);
     glCompileShader(fragmentShader);
     int fragmentCompileSuccess;
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentCompileSuccess);
@@ -119,6 +126,12 @@ void Shader::setFloat(const string &name,
         default:
             break;
     }
+}
+
+
+void Shader::setVec3(const string &name, glm::vec3 value) const {
+    unsigned int transformLoc = glGetUniformLocation(ID, name.c_str());
+    glUniform3fv(transformLoc, 1, glm::value_ptr(value));
 }
 
 void Shader::setMatrix4(const string &name, glm::mat4 value) const {
