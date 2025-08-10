@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "shaders/shader.hpp"
-#include "texture/textureLoader.hpp"
+#include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
 
 struct Cube {
