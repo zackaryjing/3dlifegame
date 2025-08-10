@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include "camera/camera.hpp"
+#include "camera/Camera.hpp"
 struct Cursor {
     static inline float lastX = 400.0f, lastY = 300.0f;
     static inline float xoffset = 0.0f, yoffset = 0.0f;
