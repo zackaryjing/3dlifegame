@@ -22,6 +22,12 @@ inline void processInput(GLFWwindow *window, float deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         Camera::moveBackward(deltaTime);
     }
+    if (glfwGetKey(window,GLFW_KEY_SPACE) == GLFW_PRESS) {
+        Camera::moveUpward(deltaTime);
+    }
+    if (glfwGetKey(window,GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        Camera::moveDownward(deltaTime);
+    }
 
 }
 

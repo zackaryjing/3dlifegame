@@ -9,6 +9,7 @@ struct Camera {
     static inline auto cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     static inline auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     static inline auto direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    static inline auto worldUp = glm::vec3(0.0f,1.0f,0.0f);
     static inline float cameraSpeed = 2.5;
     static inline float yaw = -90.0f;
     static inline float pitch = 0.0f;
@@ -47,6 +48,14 @@ struct Camera {
 
     static void moveBackward(const float deltaTime) {
         cameraPos -= deltaTime * cameraSpeed * cameraFront;
+    }
+
+    static void moveUpward(const float deltaTime) {
+        cameraPos += deltaTime * cameraSpeed * cameraUp;
+    }
+
+    static void moveDownward(const float deltaTime) {
+        cameraPos -= deltaTime * cameraSpeed * cameraUp;
     }
 
     static void moveRight(const float deltaTime) {
