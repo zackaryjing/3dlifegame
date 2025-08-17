@@ -5,8 +5,6 @@
 #include <iostream>
 #include <unistd.h>
 #include "model/Cube.hpp"
-#include "model/Model.hpp"
-#include "scene/Scene.hpp"
 #include "ui/KeyboardInput.hpp"
 #include "ui/MouseInput.hpp"
 
@@ -30,7 +28,7 @@ int main() {
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
         return -1;
-    }
+                }
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     int nrAttributes;
@@ -39,13 +37,10 @@ int main() {
          << endl;
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     glfwSetCursorPosCallback(window, Cursor::mouse_callback);
     glfwSetScrollCallback(window, Cursor::scroll_callback);
+    Cube::render(window);
 
-    for (int i = 0; i < 5; ++i) {
-        Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
-    }
-
-    Scene::render(window);
     return 0;
 }
