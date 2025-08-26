@@ -8,6 +8,7 @@
 #include "model/Model.hpp"
 #include "scene/Scene.hpp"
 #include "ui/KeyboardInput.hpp"
+#include "logic/GameOfLife.hpp"
 #include "ui/MouseInput.hpp"
 
 using namespace std;
