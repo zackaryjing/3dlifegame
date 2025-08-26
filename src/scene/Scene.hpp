@@ -13,6 +13,7 @@
 #include "shaders/shader.hpp"
 #include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
+#include "logic/GameOfLife.hpp"
 
 using std::vector;
 
@@ -77,7 +78,6 @@ public:
      * init both VAO and VBO
      */
     static void initSceneVO() {
-
         constexpr int stride = 8;
         // vertices
         constexpr GLuint vertices_index = 0;
@@ -148,6 +148,7 @@ public:
         const auto &interval = getIntervals();
         const auto &modelMat = getModelMat();
 
+        Layer layer(0);
         while (not glfwWindowShouldClose(window)) {
             processInput(window, deltaTime);
 
