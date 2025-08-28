@@ -165,29 +165,35 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            auto lightPos =
+                    glm::vec3(glm::rotate(glm::mat4(1.0f),
+                                          static_cast<float>(glfwGetTime()) *
+                                                  glm::radians(50.0f),
+                                          glm::vec3(0.0f, 0.0f, 1.0f)) *
+                              glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+
             ourShader.use();
             ourShader.setInt("ourTexture", 0);
-            ourShader.setVec3("lightDir", lightDir);
             ourShader.setMatrix4("view", view);
             ourShader.setMatrix4("projection", projection);
+            ourShader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            ourShader.setVec3("lightPos", lightPos);
+            ourShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model,lightPos);
+            model = glm::scale(model,glm::vec3(0.1f,0.1f,0.1f));
+
             glBindVertexArray(objectVAO);
-            for (size_t i = 0; i < models.size(); ++i) {
+            ourShader.setMatrix4("model", model);
+            glDrawArrays(GL_TRIANGLES, interval[0].first, interval[0].second);
+
+            ourShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+            for (size_t i = 1; i < models.size(); ++i) {
                 const glm::mat4 model = glm::rotate(
                         models[i]->modelMat,
                         static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
                         glm::vec3(0.5f, 1.0f, 0.0f));
                 ourShader.setMatrix4("model", model);
-                glDrawArrays(GL_TRIANGLES, interval[i].first,
-                             interval[i].second);
-            }
-            lightingShader.use();
-            lightingShader.setMatrix4("view", view);
-            lightingShader.setMatrix4("projection", projection);
-            lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-            lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-            lightingShader.setMatrix4("model", modelMat[0]);
-            glBindVertexArray(lightVAO);
-            for (size_t i = 0; i < 1; ++i) {
                 glDrawArrays(GL_TRIANGLES, interval[i].first,
                              interval[i].second);
             }
