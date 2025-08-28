@@ -43,6 +43,7 @@ int main() {
     glfwSetCursorPosCallback(window, Cursor::mouse_callback);
     glfwSetScrollCallback(window, Cursor::scroll_callback);
 
+    Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
     for (int i = 0; i < 5; ++i) {
         Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
     }
