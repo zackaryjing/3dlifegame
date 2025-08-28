@@ -1,10 +1,13 @@
 #pragma once
 #include <algorithm>
+#include <limits>
+#include <numeric>
 #include <ranges>
 #include <vector>
 
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "light/Light.hpp"
 #include "model/Model.hpp"
@@ -21,7 +24,8 @@ public:
 
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
 
-    static inline string lighting_shader = GLSL_DIR "LightingShader.fs";
+    static inline string lighting_fshader = GLSL_DIR "LightingShader.fs";
+    static inline string lighting_vshader = GLSL_DIR "LightingShader.vs";
 
     static inline vector<shared_ptr<Model>> models = {};
 
@@ -102,11 +106,11 @@ public:
                 reinterpret_cast<void *>(5 * sizeof(float));
 
         // create and bind vertex array object
-        const auto vertices = genVertices();
         unsigned int VAO;
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         // create vertex buffer object
+        const auto vertices = genVertices();
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
@@ -134,7 +138,8 @@ public:
 
         const Shader ourShader(vertex_shader, fragment_shader,
                                ShaderParamType::PATH);
-        const Shader lightingShader(lighting_shader, ShaderParamType::PATH);
+        const Shader lightingShader(lighting_vshader, lighting_fshader,
+                                    ShaderParamType::PATH);
 
         unsigned int texture = create_brick_wall_texture();
 
@@ -176,8 +181,11 @@ public:
                              interval[i].second);
             }
             lightingShader.use();
+            lightingShader.setMatrix4("view", view);
+            lightingShader.setMatrix4("projection", projection);
             lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
             lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            lightingShader.setMatrix4("model", modelMat[0]);
             glBindVertexArray(lightVAO);
             for (size_t i = 0; i < 1; ++i) {
                 glDrawArrays(GL_TRIANGLES, interval[i].first,

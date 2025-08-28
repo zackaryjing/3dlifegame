@@ -14,55 +14,6 @@ using std::ifstream;
 using std::string;
 using std::stringstream;
 
-Shader::Shader(string lightingShaderParam, ShaderParamType type) {
-    string lShaderCode;
-    if (type == ShaderParamType::PATH) {
-        ifstream lShaderFile;
-        // throw an exception if failed or path is bad
-        lShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-        try {
-            lShaderFile.open(lightingShaderParam);
-            stringstream lShaderStream;
-            lShaderStream << lShaderFile.rdbuf();
-            lShaderFile.close();
-            lShaderCode = lShaderStream.str();
-        } catch (ifstream::failure e) {
-            cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
-            throw;
-        }
-    } else {
-        lShaderCode = lightingShaderParam;
-    }
-
-    char infoLog[512];
-
-    unsigned int lightingShader = glCreateShader(GL_VERTEX_SHADER);
-    const char *lShaderPointer = lShaderCode.c_str();
-    glShaderSource(lightingShader, 1, &lShaderPointer, nullptr);
-    glCompileShader(lightingShader);
-    int lightingCompileSuccess;
-    glGetShaderiv(lightingShader, GL_COMPILE_STATUS, &lightingCompileSuccess);
-    if (not lightingCompileSuccess) {
-        glGetShaderInfoLog(lightingShader, 512, nullptr, infoLog);
-        std::cerr << "ERROR::SHADER::LIGHTING::COMPILATION_FAILED\n"
-                  << infoLog << std::endl;
-    } else {
-        std::cout << "INFO::SHADER::LIGHTING::COMPILATION_SUCCESS" << std::endl;
-    }
-
-    ID = glCreateProgram();
-    glAttachShader(ID, lightingShader);
-    glLinkProgram(ID);
-    int programLinkSuccess;
-    glGetProgramiv(ID, GL_LINK_STATUS, &programLinkSuccess);
-    if (not programLinkSuccess) {
-        glGetProgramInfoLog(ID, 512, nullptr, infoLog);
-        cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << endl;
-    }
-    glDeleteShader(lightingShader);
-
-}
-
 Shader::Shader(string vertexShaderParam, string fragmentShaderParam,
                ShaderParamType type) {
 
