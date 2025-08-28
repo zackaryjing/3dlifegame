@@ -16,7 +16,6 @@ class Shader {
 public:
     unsigned int ID;
 
-    explicit Shader(string lightingShaderParam, ShaderParamType type = ShaderParamType::PATH);
     Shader(string vertexShaderParam, string fragmentShaderParam,
            ShaderParamType type = ShaderParamType::PATH);
     void use() const;

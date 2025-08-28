@@ -20,6 +20,7 @@ inline void Light::init() {
     if (not hasInit) {
         glGenVertexArrays(1, &lightVAO);
         glBindVertexArray(lightVAO);
+        hasInit = true;
     }
 }
 
@@ -28,8 +29,8 @@ inline unsigned int Light::getLightVAO(const unsigned int VBO) {
         cerr << "ERROR::LIGHT::Haven't init light object" << endl;
     }
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          static_cast<void *>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                          reinterpret_cast<void *>(0 * sizeof(float)));
     glEnableVertexAttribArray(0);
     return lightVAO;
 }

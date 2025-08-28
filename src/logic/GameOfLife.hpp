@@ -1,8 +1,10 @@
 #pragma once
 
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/glm.hpp>
 #include <iostream>
-#include <random>
 #include <vector>
+
 using std::cout;
 using std::endl;
 using std::vector;
@@ -59,6 +61,17 @@ public:
                 return data[y][x];
             default:
                 return false;
+        }
+    }
+
+    void toModelMat(int index) {
+        vector<glm::mat4> res;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                res.push_back(glm::translate(glm::mat4(1.0f),
+                                             glm::vec3(1.0f, 1.0f, 1.0f)));
+            }
+            cout << endl;
         }
     }
 
