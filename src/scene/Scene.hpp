@@ -1,14 +1,12 @@
 #pragma once
 #include <algorithm>
-#include <limits>
-#include <numeric>
 #include <ranges>
 #include <vector>
 
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
 
+#include "light/Light.hpp"
 #include "model/Model.hpp"
 #include "shaders/shader.hpp"
 #include "texture/TextureLoader.hpp"
@@ -22,6 +20,8 @@ public:
     static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
 
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
+
+    static inline string lighting_shader = GLSL_DIR "LightingShader.fs";
 
     static inline vector<shared_ptr<Model>> models = {};
 
@@ -73,11 +73,13 @@ public:
         return modelMats;
     }
 
-    /**
-     * init both VAO and VBO
-     */
-    static void initSceneVO() {
+    static unsigned int getVBO() {
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+        return VBO;
+    }
 
+    static unsigned int getObjectVAO(const unsigned int VBO) {
         constexpr int stride = 8;
         // vertices
         constexpr GLuint vertices_index = 0;
@@ -105,8 +107,6 @@ public:
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         // create vertex buffer object
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
@@ -120,24 +120,27 @@ public:
         glVertexAttribPointer(normals_index, normals_size, GL_FLOAT, GL_FALSE,
                               normals_stride, normals_pointer);
         glEnableVertexAttribArray(2);
+        return VAO;
     }
 
     static void render(GLFWwindow *window) {
-        initSceneVO();
+        const auto VBO = getVBO();
+        const auto objectVAO = getObjectVAO(VBO);
+        Light::init();
+        const auto lightVAO = Light::getLightVAO(VBO);
+
 
         glEnable(GL_DEPTH_TEST);
 
         const Shader ourShader(vertex_shader, fragment_shader,
                                ShaderParamType::PATH);
-
-        ourShader.use();
+        const Shader lightingShader(lighting_shader, ShaderParamType::PATH);
 
         unsigned int texture = create_brick_wall_texture();
 
 
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);
-        ourShader.setInt("ourTexture", 0);
 
 
         const glm::vec3 lightDir = normalize(glm::vec3{1, 1, 2});
@@ -157,16 +160,26 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            ourShader.use();
+            ourShader.setInt("ourTexture", 0);
             ourShader.setVec3("lightDir", lightDir);
             ourShader.setMatrix4("view", view);
             ourShader.setMatrix4("projection", projection);
-
+            glBindVertexArray(objectVAO);
             for (size_t i = 0; i < models.size(); ++i) {
                 const glm::mat4 model = glm::rotate(
                         models[i]->modelMat,
                         static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
                         glm::vec3(0.5f, 1.0f, 0.0f));
                 ourShader.setMatrix4("model", model);
+                glDrawArrays(GL_TRIANGLES, interval[i].first,
+                             interval[i].second);
+            }
+            lightingShader.use();
+            lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+            lightingShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            glBindVertexArray(lightVAO);
+            for (size_t i = 0; i < 1; ++i) {
                 glDrawArrays(GL_TRIANGLES, interval[i].first,
                              interval[i].second);
             }
