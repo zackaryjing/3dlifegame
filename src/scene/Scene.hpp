@@ -165,12 +165,13 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            auto lightPos =
-                    glm::vec3(glm::rotate(glm::mat4(1.0f),
-                                          static_cast<float>(glfwGetTime()) *
-                                                  glm::radians(50.0f),
-                                          glm::vec3(0.0f, 0.0f, 1.0f)) *
-                              glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+            auto lightPos = glm::vec3(0.0f, 3.0f, 0.0f);
+//            auto lightPos =
+//                    glm::vec3(glm::rotate(glm::mat4(1.0f),
+//                                          static_cast<float>(glfwGetTime()) *
+//                                                  glm::radians(50.0f),
+//                                          glm::vec3(0.0f, 0.0f, 1.0f)) *
+//                              glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
 
             ourShader.use();
             ourShader.setInt("ourTexture", 0);
@@ -179,6 +180,7 @@ public:
             ourShader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
             ourShader.setVec3("lightPos", lightPos);
             ourShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            ourShader.setVec3("viewPos",Camera::cameraPos);
             auto model = glm::mat4(1.0f);
             model = glm::translate(model,lightPos);
             model = glm::scale(model,glm::vec3(0.1f,0.1f,0.1f));
