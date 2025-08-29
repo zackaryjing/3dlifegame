@@ -193,7 +193,8 @@ public:
             for (size_t i = 1; i < models.size(); ++i) {
                 const glm::mat4 model = glm::rotate(
                         models[i]->modelMat,
-                        static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
+//                        static_cast<float>(glfwGetTime()) *
+                                glm::radians(50.0f),
                         glm::vec3(0.5f, 1.0f, 0.0f));
                 ourShader.setMatrix4("model", model);
                 glDrawArrays(GL_TRIANGLES, interval[i].first,
