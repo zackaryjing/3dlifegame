@@ -8,7 +8,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include "shaders/shader.hpp"
+#include "shaders/Shader.hpp"
 #include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
 

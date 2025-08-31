@@ -9,20 +9,22 @@ find_package(glm CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_library(common INTERFACE)
+add_library(common INTERFACE
+        src/model/ModelLoader.hpp)
 
 target_link_libraries(common INTERFACE glfw glm::glm glad::glad OpenGL::GL)
 
-add_executable(LifeGame src/main.cpp src/shaders/shader.cpp ./deps/stb/stb_image.h)
+add_executable(LifeGame src/main.cpp src/shaders/Shader.cpp ./deps/stb/stb_image.h)
 target_link_libraries(LifeGame PUBLIC common)
 target_include_directories(LifeGame PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
-add_executable(LifeGameCubeTest src/tests/TestCube.cpp src/shaders/shader.cpp ./deps/stb/stb_image.h)
+add_executable(LifeGameCubeTest src/tests/TestCube.cpp src/shaders/Shader.cpp ./deps/stb/stb_image.h)
 target_link_libraries(LifeGameCubeTest PUBLIC common)
 target_include_directories(LifeGameCubeTest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 add_definitions(-DGLSL_DIR="${CMAKE_SOURCE_DIR}/src/shaders/" -DGLM_ENABLE_EXPERIMENTAL)
 add_definitions(-DTEXTURE_DIR="${CMAKE_SOURCE_DIR}/assets/texture/")
+add_definitions(-DMODEL_DIR="${CMAKE_SOURCE_DIR}/assets/models/")
 
 add_executable(LifeGame2dTest src/tests/TestLogic.cpp)
 target_include_directories(LifeGame2dTest PRIVATE ${CMAKE_SOURCE_DIR}/src)

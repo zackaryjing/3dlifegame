@@ -11,7 +11,7 @@
 
 #include "light/Light.hpp"
 #include "model/Model.hpp"
-#include "shaders/shader.hpp"
+#include "shaders/Shader.hpp"
 #include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
 
@@ -180,7 +180,7 @@ public:
             ourShader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
             ourShader.setVec3("lightPos", lightPos);
             ourShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-            ourShader.setVec3("viewPos",Camera::cameraPos);
+//            ourShader.setVec3("viewPos",Camera::cameraPos);
             auto model = glm::mat4(1.0f);
             model = glm::translate(model,lightPos);
             model = glm::scale(model,glm::vec3(0.1f,0.1f,0.1f));

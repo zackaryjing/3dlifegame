@@ -1,4 +1,4 @@
-#include "shader.hpp"
+#include "Shader.hpp"
 #include <fstream>
 #include <glad/glad.h>
 #include <glm/glm.hpp>

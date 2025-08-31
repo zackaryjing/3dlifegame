@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../shaders/shader.hpp"
+#include "../shaders/Shader.hpp"
 #include "../texture/textureLoader.hpp"
 
 struct CubeEBO {

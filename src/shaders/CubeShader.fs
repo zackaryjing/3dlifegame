@@ -4,6 +4,13 @@ in vec2 TexCoord;
 in vec3 normal;
 in vec3 fragPos;
 
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
 uniform sampler2D ourTexture;
 uniform vec3 objectColor;
 uniform vec3 lightColor;
@@ -12,7 +19,7 @@ uniform vec3 viewPos;
 
 void main()
 {
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.2;
     float specularStrength = 0.5;
 
     vec3 ambient = ambientStrength * lightColor;
