@@ -19,6 +19,7 @@ find_package(OpenGL REQUIRED)
 add_library(common_headers INTERFACE
         deps/stb/stb_image.h
         src/model/ModelLoader.hpp
+        src/ui/Window.hpp
         src/utils/Node.hpp
         src/utils/Type.hpp
         src/debug/Error.hpp

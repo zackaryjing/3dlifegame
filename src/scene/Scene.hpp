@@ -156,8 +156,8 @@ public:
 
         const auto &interval = getIntervals();
         const auto &modelMat = getModelMat();
-        const auto lightTurning = false;
-        const auto modelTurning = false;
+        const auto lightTurning = true;
+        const auto modelTurning = true;
 
         while (not glfwWindowShouldClose(window)) {
             glCheckError();

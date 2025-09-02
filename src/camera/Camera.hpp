@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/vec3.hpp>
+#include "ui/Window.hpp"
 
 struct Camera {
     static inline auto cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -22,8 +23,9 @@ struct Camera {
     }
 
     static auto getProjection() {
-        return glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f,
-                                100.0f);
+        return glm::perspective(glm::radians(fov),
+                                (float) Window::width / (float) Window::height,
+                                0.1f, 100.0f);
     }
 
 
