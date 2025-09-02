@@ -9,11 +9,12 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "debug/Error.hpp"
+#include "light/Light.hpp"
 #include "model/Model.hpp"
-#include "shaders/shader.hpp"
+#include "shaders/Shader.hpp"
 #include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
-#include "logic/GameOfLife.hpp"
 
 using std::vector;
 
@@ -23,6 +24,9 @@ public:
     static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
 
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
+
+    static inline string lighting_fshader = GLSL_DIR "LightingShader.fs";
+    static inline string lighting_vshader = GLSL_DIR "LightingShader.vs";
 
     static inline vector<shared_ptr<Model>> models = {};
 
@@ -74,10 +78,13 @@ public:
         return modelMats;
     }
 
-    /**
-     * init both VAO and VBO
-     */
-    static void initSceneVO() {
+    static unsigned int getVBO() {
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+        return VBO;
+    }
+
+    static unsigned int getObjectVAO(const unsigned int VBO) {
         constexpr int stride = 8;
         // vertices
         constexpr GLuint vertices_index = 0;
@@ -100,13 +107,11 @@ public:
                 reinterpret_cast<void *>(5 * sizeof(float));
 
         // create and bind vertex array object
-        const auto vertices = genVertices();
         unsigned int VAO;
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         // create vertex buffer object
-        unsigned int VBO;
-        glGenBuffers(1, &VBO);
+        const auto vertices = genVertices();
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
@@ -120,36 +125,42 @@ public:
         glVertexAttribPointer(normals_index, normals_size, GL_FLOAT, GL_FALSE,
                               normals_stride, normals_pointer);
         glEnableVertexAttribArray(2);
+        return VAO;
     }
 
     static void render(GLFWwindow *window) {
-        initSceneVO();
+        const auto VBO = getVBO();
+        const auto objectVAO = getObjectVAO(VBO);
+        Light::init();
+        // const auto lightVAO = Light::getLightVAO(VBO);
+
 
         glEnable(GL_DEPTH_TEST);
 
         const Shader ourShader(vertex_shader, fragment_shader,
                                ShaderParamType::PATH);
-
-        ourShader.use();
+        const Shader lightingShader(lighting_vshader, lighting_fshader,
+                                    ShaderParamType::PATH);
 
         unsigned int texture = create_brick_wall_texture();
 
 
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);
-        ourShader.setInt("ourTexture", 0);
 
 
-        const glm::vec3 lightDir = normalize(glm::vec3{1, 1, 2});
+        // const glm::vec3 lightDir = normalize(glm::vec3{1, 1, 2});
         float deltaTime = 0.0f;
         float lastFrame = 0.0f;
 
 
         const auto &interval = getIntervals();
         const auto &modelMat = getModelMat();
+        const auto lightTurning = true;
+        const auto modelTurning = true;
 
-        Layer layer(0);
         while (not glfwWindowShouldClose(window)) {
+            glCheckError();
             processInput(window, deltaTime);
 
             const glm::mat4 view = Camera::getView();
@@ -158,15 +169,50 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            ourShader.setVec3("lightDir", lightDir);
+            auto lightPos = glm::vec3(0.0f, 3.0f, 0.0f);
+            if (lightTurning) {
+                lightPos = glm::vec3(
+                        glm::rotate(glm::mat4(1.0f),
+                                    static_cast<float>(glfwGetTime()) *
+                                            glm::radians(50.0f),
+                                    glm::vec3(0.0f, 0.0f, 1.0f)) *
+                        glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+            }
+            ourShader.use();
+            ourShader.setInt("ourTexture", 0);
             ourShader.setMatrix4("view", view);
             ourShader.setMatrix4("projection", projection);
+            ourShader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            ourShader.setVec3("lightPos", lightPos);
+            ourShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+            ourShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+            ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+            ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 
-            for (size_t i = 0; i < models.size(); ++i) {
-                const glm::mat4 model = glm::rotate(
-                        models[i]->modelMat,
-                        static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
-                        glm::vec3(0.5f, 1.0f, 0.0f));
+            Light::propertySpin();
+            ourShader.setVec3("light.ambient", Light::ambientColor);
+            ourShader.setVec3("light.diffuse", Light::diffuseColor);
+            ourShader.setVec3("light.specular", Light::specularColor);
+            ourShader.setFloat("material.shiness", 32.0f);
+            //            ourShader.setVec3("viewPos",Camera::cameraPos);
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPos);
+            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+
+            glBindVertexArray(objectVAO);
+            ourShader.setMatrix4("model", model);
+            glDrawArrays(GL_TRIANGLES, interval[0].first, interval[0].second);
+
+            ourShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+            for (size_t i = 1; i < models.size(); ++i) {
+                if (modelTurning) {
+                    model = glm::rotate(models[i]->modelMat,
+                                        static_cast<float>(glfwGetTime()) *
+                                                glm::radians(50.0f),
+                                        glm::vec3(0.5f, 1.0f, 0.0f));
+                } else {
+                    model = models[i]->modelMat;
+                }
                 ourShader.setMatrix4("model", model);
                 glDrawArrays(GL_TRIANGLES, interval[i].first,
                              interval[i].second);

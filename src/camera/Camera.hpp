@@ -3,13 +3,15 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/vec3.hpp>
+#include "ui/Window.hpp"
 
 struct Camera {
     static inline auto cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
     static inline auto cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    static inline auto cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
     static inline auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     static inline auto direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    static inline auto worldUp = glm::vec3(0.0f,1.0f,0.0f);
+    static inline auto worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     static inline float cameraSpeed = 2.5;
     static inline float yaw = -90.0f;
     static inline float pitch = 0.0f;
@@ -21,8 +23,9 @@ struct Camera {
     }
 
     static auto getProjection() {
-        return glm::perspective(glm::radians(fov), 800.0f / 600.0f, 0.1f,
-                                100.0f);
+        return glm::perspective(glm::radians(fov),
+                                (float) Window::width / (float) Window::height,
+                                0.1f, 100.0f);
     }
 
 
@@ -40,6 +43,8 @@ struct Camera {
         direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
         direction.y = sin(glm::radians(pitch));
         cameraFront = direction;
+        cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
+        cameraUp = glm::cross(cameraRight, cameraFront);
     }
 
     static void moveForward(const float deltaTime) {

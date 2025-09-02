@@ -28,7 +28,7 @@ int main() {
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
         return -1;
-                }
+    }
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     int nrAttributes;

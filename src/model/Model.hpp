@@ -8,6 +8,7 @@
 #include <glm/vec3.hpp>
 #include <memory>
 #include <random>
+#include "utils/Type.hpp"
 using std::copy_n;
 using std::make_unique;
 using std::tuple;
@@ -22,10 +23,48 @@ public:
     unique_ptr<float[]> vertices = {};
     unique_ptr<float[]> texture_coord = {};
     unique_ptr<float[]> normals = {};
-    int vertex_cnt = {};
+    string material;
+    size_t vertex_cnt = {};
 
     glm::vec3 position = {};
     glm::mat4 modelMat = {};
+
+
+    static Model genModel(VFVec3 vertices, VFVec3 normals, VFVec2 texture_coord,
+                          string material) {
+        Model instance;
+        size_t n = vertices.size();
+        size_t m = normals.size();
+        size_t l = texture_coord.size();
+        if (n != m or m != l) {
+            throw std::invalid_argument("params should be of the same length");
+        }
+        instance.vertices = make_unique<float[]>(n * 3);
+        for (size_t i = 0; i < n; ++i) {
+            auto vertex = vertices[i];
+            instance.vertices[i * 3] = get<0>(vertex);
+            instance.vertices[i * 3 + 1] = get<1>(vertex);
+            instance.vertices[i * 3 + 2] = get<2>(vertex);
+        }
+        instance.normals = make_unique<float[]>(n * 3);
+        for (size_t i = 0; i < n; ++i) {
+            auto normal = normals[i];
+            instance.normals[i * 3] = get<0>(normal);
+            instance.normals[i * 3 + 1] = get<1>(normal);
+            instance.normals[i * 3 + 2] = get<2>(normal);
+        }
+        instance.texture_coord = make_unique<float[]>(n * 2);
+        for (size_t i = 0; i < n; ++i) {
+            auto coord = texture_coord[i];
+            instance.texture_coord[i * 2] = get<0>(coord);
+            instance.texture_coord[i * 2 + 1] = get<1>(coord);
+        }
+        instance.vertex_cnt = n;
+        instance.material = material;
+        instance.modelMat = glm::mat4(1.0f);
+        instance.position = glm::vec3(0.0f,0.0f,0.0f);
+        return instance;
+    }
 
     static glm::vec3 randomVec3(const float min, const float max) {
         static std::random_device rd;

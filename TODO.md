@@ -1,0 +1,4 @@
+- [ ] strange glitch when moving view
+- [ ] wrong camera up direction
+- [ ] hud info 
+- [ ] log system
