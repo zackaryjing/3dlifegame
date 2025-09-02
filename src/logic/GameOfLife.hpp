@@ -26,9 +26,9 @@ public:
         height = _height;
     }
     void randomInit() {
-        const int limit = ratio * RAND_MAX;
-        for (size_t i = 0; i < height; i++) {
-            for (size_t j = 0; j < width; j++) {
+        const int limit = (int) (ratio * (float) RAND_MAX);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 if (const int num = rand(); num < limit) {
                     data[i][j] = true;
                 }
@@ -65,6 +65,7 @@ public:
     }
 
     void toModelMat(int index) {
+        (void)index;
         vector<glm::mat4> res;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {

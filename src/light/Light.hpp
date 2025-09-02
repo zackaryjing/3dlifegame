@@ -11,9 +11,14 @@ class Light {
     static inline unsigned int lightVAO;
 
 public:
-    static inline void init();
+    static inline glm::vec3 ambientColor;
+    static inline glm::vec3 diffuseColor;
+    static inline glm::vec3 specularColor;
+    static inline glm::vec3 lightColor;
 
+    static inline void init();
     static inline unsigned int getLightVAO(unsigned int VBO);
+    static inline void propertySpin();
 };
 
 inline void Light::init() {
@@ -21,6 +26,9 @@ inline void Light::init() {
         glGenVertexArrays(1, &lightVAO);
         glBindVertexArray(lightVAO);
         hasInit = true;
+        ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+        diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
+        specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
     }
 }
 
@@ -33,4 +41,13 @@ inline unsigned int Light::getLightVAO(const unsigned int VBO) {
                           reinterpret_cast<void *>(0 * sizeof(float)));
     glEnableVertexAttribArray(0);
     return lightVAO;
+}
+
+inline void Light::propertySpin() {
+    lightColor.x = sin(glfwGetTime() * 2.0f);
+    lightColor.y = sin(glfwGetTime() * 0.7f);
+    lightColor.y = sin(glfwGetTime() * 1.3f);
+
+    diffuseColor = lightColor * glm::vec3(0.5f);
+    ambientColor = lightColor * glm::vec3(0.2f);
 }

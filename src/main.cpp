@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "model/Cube.hpp"
 #include "model/Model.hpp"
+#include "model/ModelLoader.hpp"
 #include "scene/Scene.hpp"
 #include "ui/KeyboardInput.hpp"
 #include "logic/GameOfLife.hpp"
@@ -44,9 +45,12 @@ int main() {
     glfwSetScrollCallback(window, Cursor::scroll_callback);
 
     Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
-    for (int i = 0; i < 5; ++i) {
-        Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
-    }
+//    for (int i = 0; i < 5; ++i) {
+//        Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
+//    }
+//    string model_dir = MODEL_DIR "arrow.obj";
+    string model_dir = MODEL_DIR "cube.obj";
+    Scene::models.emplace_back(make_shared<Model>(ModelLoader::loadModel(model_dir)));
 
     Scene::render(window);
     return 0;

@@ -35,7 +35,7 @@ Shader::Shader(string vertexShaderParam, string fragmentShaderParam,
             fShaderFile.close();
             vShaderCode = vShaderStream.str();
             fShaderCode = fShaderStream.str();
-        } catch (ifstream::failure e) {
+        } catch (ifstream::failure &e) {
             cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
             throw;
         }

@@ -9,6 +9,7 @@ struct Cursor {
     static inline bool firstMouse = true;
     static inline float zoom = 45.0f;
     static void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+        (void) window;
         if (firstMouse) {
             lastX = static_cast<float>(xpos);
             lastY = static_cast<float>(ypos);
@@ -25,8 +26,11 @@ struct Cursor {
         Camera::lookAround(yoffset, xoffset);
     }
 
-    static void scroll_callback(GLFWwindow *window, const double xoffset,
-                                const double yoffset) {
+    static void scroll_callback(GLFWwindow *window, const double xoffset_param,
+                                const double yoffset_param) {
+        (void) window;
+        (void) xoffset_param;
+        (void) yoffset_param;
         zoom -= static_cast<float>(yoffset);
         if (zoom < 1.0f)
             zoom = 1.0f;
