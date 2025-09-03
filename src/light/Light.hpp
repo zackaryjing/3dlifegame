@@ -15,6 +15,8 @@ public:
     static inline glm::vec3 diffuseColor;
     static inline glm::vec3 specularColor;
     static inline glm::vec3 lightColor;
+    static inline glm::vec3 position;
+    static inline glm::vec3 color;
 
     static inline void init();
     static inline unsigned int getLightVAO(unsigned int VBO);
@@ -29,6 +31,8 @@ inline void Light::init() {
         ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
         diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
         specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        position = glm::vec3(0.0f, 3.0f, 0.0f);
+        color = glm::vec3(1.0f, 1.0f, 1.0f);
     }
 }
 
@@ -44,9 +48,16 @@ inline unsigned int Light::getLightVAO(const unsigned int VBO) {
 }
 
 inline void Light::propertySpin() {
-    lightColor.x = sin(glfwGetTime() * 2.0f);
-    lightColor.y = sin(glfwGetTime() * 0.7f);
-    lightColor.y = sin(glfwGetTime() * 1.3f);
+
+    lightColor.x = (float) sin(glfwGetTime() * 2.0f);
+    lightColor.y = (float) sin(glfwGetTime() * 0.7f);
+    lightColor.y = (float) sin(glfwGetTime() * 1.3f);
+
+    position = glm::vec3(
+            glm::rotate(glm::mat4(1.0f),
+                        static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
+                        glm::vec3(0.0f, 0.0f, 1.0f)) *
+            glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
 
     diffuseColor = lightColor * glm::vec3(0.5f);
     ambientColor = lightColor * glm::vec3(0.2f);
