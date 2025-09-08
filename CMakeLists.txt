@@ -13,6 +13,7 @@ endif ()
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
+find_package(Freetype CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 
@@ -23,7 +24,11 @@ add_library(common_headers INTERFACE
         src/utils/Node.hpp
         src/utils/Type.hpp
         src/debug/Error.hpp
+        src/fonts/Font.hpp
+        src/group/Group.hpp
+        src/model/Material.hpp
 )
+target_link_libraries(common_headers INTERFACE Freetype::Freetype)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 add_library(common INTERFACE)

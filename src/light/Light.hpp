@@ -1,57 +1,81 @@
 #pragma once
 #include <glad/glad.h>
 #include <iostream>
+#include "camera/Camera.hpp"
+#include "model/Model.hpp"
+#include "shaders/Shader.hpp"
 
 using std::cerr;
 using std::endl;
+using std::make_shared;
+using std::shared_ptr;
 
 
 class Light {
-    static inline bool hasInit = false;
-    static inline unsigned int lightVAO;
+    unsigned int lightVAO;
 
 public:
-    static inline glm::vec3 ambientColor;
-    static inline glm::vec3 diffuseColor;
-    static inline glm::vec3 specularColor;
-    static inline glm::vec3 lightColor;
-    static inline glm::vec3 position;
-    static inline glm::vec3 color;
+    Light();
+    glm::vec3 ambientColor;
+    glm::vec3 diffuseColor;
+    glm::vec3 specularColor;
+    glm::vec3 lightColor;
+    glm::vec3 position;
+    string lighting_fshader = GLSL_DIR "LightingShader.fs";
+    string lighting_vshader = GLSL_DIR "LightingShader.vs";
+    Shader lightShader = {};
+    shared_ptr<Model> lightModel;
+    const bool lightTurning = true;
 
-    static inline void init();
-    static inline unsigned int getLightVAO(unsigned int VBO);
-    static inline void propertySpin();
+    void propertySpin();
+    void setCommonUni(glm::mat4 view, glm::mat4 projection) {
+        lightShader.setInt("ourTexture", 0);
+        lightShader.setMatrix4("view", view);
+        lightShader.setMatrix4("projection", projection);
+    }
+
+    void setModelUni() {
+        lightShader.setVec3("light.position", position);
+        lightShader.setVec3("light.ambient", ambientColor);
+        lightShader.setVec3("light.diffuse", diffuseColor);
+        lightShader.setVec3("light.specular", specularColor);
+        lightShader.setVec3("light.color", lightColor);
+    }
+
+    void drawLight(glm::mat4 view, glm::mat4 projection) {
+        if (lightTurning) {
+            propertySpin();
+        }
+        lightShader.use();
+        setCommonUni(view, projection);
+        setModelUni();
+        auto model = glm::mat4(1.0f);
+        model = glm::translate(model, position);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        lightShader.setMatrix4("model", model);
+        glDrawArrays(GL_TRIANGLES, lightModel->dataPos.first,
+                     lightModel->dataPos.second);
+    }
 };
 
-inline void Light::init() {
-    if (not hasInit) {
-        glGenVertexArrays(1, &lightVAO);
-        glBindVertexArray(lightVAO);
-        hasInit = true;
-        ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
-        diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
-        specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        position = glm::vec3(0.0f, 3.0f, 0.0f);
-        color = glm::vec3(1.0f, 1.0f, 1.0f);
-    }
+Light::Light() {
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
+    diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
+    specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    position = glm::vec3(0.0f, 3.0f, 0.0f);
+    lightShader =
+            Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
+    lightModel = make_shared<Model>(Model::getCube());
 }
 
-inline unsigned int Light::getLightVAO(const unsigned int VBO) {
-    if (not hasInit) {
-        cerr << "ERROR::LIGHT::Haven't init light object" << endl;
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
-                          reinterpret_cast<void *>(0 * sizeof(float)));
-    glEnableVertexAttribArray(0);
-    return lightVAO;
-}
+void Light::propertySpin() {
 
-inline void Light::propertySpin() {
-
-    lightColor.x = (float) sin(glfwGetTime() * 2.0f);
-    lightColor.y = (float) sin(glfwGetTime() * 0.7f);
-    lightColor.y = (float) sin(glfwGetTime() * 1.3f);
+    lightColor.x = (float) sin(glfwGetTime() * 2.0f) * 0.5f + 1;
+    lightColor.y = (float) sin(glfwGetTime() * 0.7f) * 0.5f + 1;
+    lightColor.y = (float) sin(glfwGetTime() * 1.3f) * 0.5f + 1;
 
     position = glm::vec3(
             glm::rotate(glm::mat4(1.0f),

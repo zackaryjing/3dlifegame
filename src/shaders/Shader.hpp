@@ -15,7 +15,7 @@ enum class ShaderParamType { PATH, CODE };
 class Shader {
 public:
     unsigned int ID;
-
+    Shader() = default;
     Shader(string vertexShaderParam, string fragmentShaderParam,
            ShaderParamType type = ShaderParamType::PATH);
     void use() const;

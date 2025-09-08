@@ -8,30 +8,38 @@
 #include <glm/vec3.hpp>
 #include <memory>
 #include <random>
+#include "model/Material.hpp"
 #include "utils/Type.hpp"
 using std::copy_n;
+using std::make_pair;
 using std::make_unique;
+using std::pair;
 using std::tuple;
 using std::unique_ptr;
 
 
 // model shouldn't have a render function.
-// render a model is managed by the secne
+// render a model is managed by the scene
 class Model {
 public:
     Model() = default;
     unique_ptr<float[]> vertices = {};
     unique_ptr<float[]> texture_coord = {};
     unique_ptr<float[]> normals = {};
-    string material;
+    string material_name;
     size_t vertex_cnt = {};
 
+
+    Material material;
     glm::vec3 position = {};
     glm::mat4 modelMat = {};
+    /* data position in VAO */
+    pair<int, int> dataPos;
 
+    void setDataPos(int start, int cnt) { dataPos = make_pair(start, cnt); }
 
     static Model genModel(VFVec3 vertices, VFVec3 normals, VFVec2 texture_coord,
-                          string material) {
+                          string material_name) {
         Model instance;
         size_t n = vertices.size();
         size_t m = normals.size();
@@ -60,9 +68,9 @@ public:
             instance.texture_coord[i * 2 + 1] = get<1>(coord);
         }
         instance.vertex_cnt = n;
-        instance.material = material;
+        instance.material_name = material_name;
         instance.modelMat = glm::mat4(1.0f);
-        instance.position = glm::vec3(0.0f,0.0f,0.0f);
+        instance.position = glm::vec3(0.0f, 0.0f, 0.0f);
         return instance;
     }
 

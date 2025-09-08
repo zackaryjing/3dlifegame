@@ -5,6 +5,7 @@ in vec3 normal;
 in vec3 fragPos;
 
 struct Material {
+    vec3 color;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -22,7 +23,6 @@ struct Light {
 uniform Material material;
 uniform Light light;
 uniform sampler2D ourTexture;
-uniform vec3 objectColor;
 uniform vec3 viewPos;
 
 void main()
@@ -39,6 +39,6 @@ void main()
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = (diff * material.diffuse * light.diffuse) * light.color;
     vec3 specular = material.specular * light.specular * spec * light.color;
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * material.color;
     FragColor = vec4(result, 1.0);
 }

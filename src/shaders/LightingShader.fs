@@ -1,13 +1,20 @@
 #version 330 core
 out vec4 FragColor;
+in vec2 TexCoord;
+in vec3 normal;
+in vec3 fragPos;
 
-uniform vec3 objectColor;
-uniform vec3 lightColor;
+struct Light {
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    vec3 color;
+};
 
-void main() {
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
+uniform Light light;
 
-    vec3 result = ambient * objectColor;
-    FragColor = vec4(result, 1.0);
+void main()
+{
+    FragColor = vec4(light.color, 1.0);
 }

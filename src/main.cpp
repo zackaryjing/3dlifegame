@@ -1,13 +1,6 @@
-#include <cmath>
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <unistd.h>
-#include "logic/GameOfLife.hpp"
-#include "model/Cube.hpp"
-#include "model/Model.hpp"
-#include "model/ModelLoader.hpp"
 #include "scene/Scene.hpp"
 #include "ui/KeyboardInput.hpp"
 #include "ui/MouseInput.hpp"
@@ -24,19 +17,38 @@ int main() {
 
     Window::init();
 
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
     GLFWwindow *window = glfwCreateWindow(Window::width, Window::height,
                                           Window::name, nullptr, nullptr);
     if (window == nullptr) {
         cerr << "Failed to create GLFW window" << endl;
         glfwTerminate();
         return -1;
-    }
-    glfwMakeContextCurrent(window);
+    } glfwMakeContextCurrent(window);
     if (not gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
         return -1;
     }
+
+    // order matters, have to use this after gladLoadGLLoader
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    // debug related code
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        // can be used to control the debug message.
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                              nullptr, GL_TRUE);
+    }
+
+    // enable alpha blend to render text
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     int nrAttributes;
@@ -50,19 +62,12 @@ int main() {
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
+
     glfwSetCursorPosCallback(window, Cursor::mouse_callback);
     glfwSetScrollCallback(window, Cursor::scroll_callback);
     glfwSetWindowFocusCallback(window, Cursor::window_focus_callback);
 
-    Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
-    for (int i = 0; i < 5; ++i) {
-        Scene::models.emplace_back(make_shared<Model>(Model::getCube()));
-    }
-    string model_dir = MODEL_DIR "arrow.obj";
-    //    string model_dir = MODEL_DIR "cube.obj";
-    Scene::models.emplace_back(
-            make_shared<Model>(ModelLoader::loadModel(model_dir)));
-
-    Scene::render(window);
+    Scene scene;
+    scene.render(window);
     return 0;
 }

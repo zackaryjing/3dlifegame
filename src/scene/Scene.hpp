@@ -10,6 +10,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "debug/Error.hpp"
+#include "group/Group.hpp"
 #include "light/Light.hpp"
 #include "model/Model.hpp"
 #include "shaders/Shader.hpp"
@@ -21,126 +22,21 @@ using std::vector;
 
 class Scene {
 public:
-    static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
+    vector<Group> groups;
+    Light light;
+    vector<float> genGLData();
+    unsigned int putDataToGL();
+    unsigned int VAO;
+    unsigned int VBO;
 
-    static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
-
-    static inline string lighting_fshader = GLSL_DIR "LightingShader.fs";
-    static inline string lighting_vshader = GLSL_DIR "LightingShader.vs";
-
-    static inline vector<shared_ptr<Model>> models = {};
-
-    static vector<float> genVertices() {
-        const int total_cnts = ranges::fold_left(
-                models, 0, [](const int total, const shared_ptr<Model> &model) {
-                    return total + model->vertex_cnt;
-                });
-
-        vector<float> vertices;
-        vertices.reserve(total_cnts * 8);
-        for (const auto &model: models) {
-            for (size_t i = 0; i < model->vertex_cnt; ++i) {
-                for (int j = 0; j < 3; ++j) {
-                    vertices.push_back(model->vertices[i * 3 + j]);
-                }
-                for (int j = 0; j < 2; ++j) {
-                    vertices.push_back(model->texture_coord[i * 2 + j]);
-                }
-                for (int j = 0; j < 3; ++j) {
-                    vertices.push_back(model->normals[i * 3 + j]);
-                }
-            }
-        }
-        return vertices;
-    }
-
-    /**
-     *
-     * @return start_pos, cnt
-     */
-    static vector<pair<int, int>> getIntervals() {
-        vector<pair<int, int>> interval;
-        interval.reserve(models.size());
-        int start_point = 0;
-        for (const auto &model: models) {
-            interval.emplace_back(start_point, model->vertex_cnt);
-            start_point += model->vertex_cnt;
-        }
-        return interval;
-    }
-
-    static vector<glm::mat4> getModelMat() {
-        vector<glm::mat4> modelMats;
-        modelMats.reserve(models.size());
-        for (const auto &model: models) {
-            modelMats.push_back(model->modelMat);
-        }
-        return modelMats;
-    }
-
-    static unsigned int getVBO() {
-        unsigned int VBO;
+    Scene() {
+        groups.push_back(Group::getGroup());
         glGenBuffers(1, &VBO);
-        return VBO;
+        VAO = putDataToGL();
     }
 
-    static unsigned int getObjectVAO(const unsigned int VBO) {
-        constexpr int stride = 8;
-        // vertices
-        constexpr GLuint vertices_index = 0;
-        constexpr GLint vertices_size = 3;
-        constexpr GLsizei vertices_stride = stride * sizeof(float);
-        const auto vertices_pointer =
-                reinterpret_cast<void *>(0 * sizeof(float));
-
-        // texture coordinate
-        constexpr GLuint coord_index = 1;
-        constexpr GLint coord_size = 2;
-        constexpr GLsizei coord_stride = stride * sizeof(float);
-        const auto coord_pointer = reinterpret_cast<void *>(3 * sizeof(float));
-
-        // normals
-        constexpr GLuint normals_index = 2;
-        constexpr GLint normals_size = 3;
-        constexpr GLsizei normals_stride = stride * sizeof(float);
-        const auto normals_pointer =
-                reinterpret_cast<void *>(5 * sizeof(float));
-
-        // create and bind vertex array object
-        unsigned int VAO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        // create vertex buffer object
-        const auto vertices = genVertices();
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        glVertexAttribPointer(vertices_index, vertices_size, GL_FLOAT, GL_FALSE,
-                              vertices_stride, vertices_pointer);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(coord_index, coord_size, GL_FLOAT, GL_FALSE,
-                              coord_stride, coord_pointer);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(normals_index, normals_size, GL_FLOAT, GL_FALSE,
-                              normals_stride, normals_pointer);
-        glEnableVertexAttribArray(2);
-        return VAO;
-    }
-
-    static void render(GLFWwindow *window) {
-        const auto VBO = getVBO();
-        const auto objectVAO = getObjectVAO(VBO);
-        Light::init();
-        // const auto lightVAO = Light::getLightVAO(VBO);
-
-
+    void render(GLFWwindow *window) {
         glEnable(GL_DEPTH_TEST);
-
-        const Shader ourShader(vertex_shader, fragment_shader,
-                               ShaderParamType::PATH);
-        const Shader lightingShader(lighting_vshader, lighting_fshader,
-                                    ShaderParamType::PATH);
 
         unsigned int texture = create_brick_wall_texture();
 
@@ -148,16 +44,8 @@ public:
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);
 
-
-        // const glm::vec3 lightDir = normalize(glm::vec3{1, 1, 2});
         float deltaTime = 0.0f;
         float lastFrame = 0.0f;
-
-
-        const auto &interval = getIntervals();
-        const auto &modelMat = getModelMat();
-        const auto lightTurning = true;
-        const auto modelTurning = true;
 
         while (not glfwWindowShouldClose(window)) {
             glCheckError();
@@ -168,47 +56,11 @@ public:
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glBindVertexArray(VAO);
 
-            ourShader.use();
-            ourShader.setInt("ourTexture", 0);
-            ourShader.setMatrix4("view", view);
-            ourShader.setMatrix4("projection", projection);
-            ourShader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
-            ourShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-            ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-            ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-
-            if (lightTurning) {
-                Light::propertySpin();
-            }
-            ourShader.setVec3("light.color", Light::color);
-            ourShader.setVec3("light.position", Light::position);
-            ourShader.setVec3("light.ambient", Light::ambientColor);
-            ourShader.setVec3("light.diffuse", Light::diffuseColor);
-            ourShader.setVec3("light.specular", Light::specularColor);
-            ourShader.setFloat("material.shininess", 32.0f);
-            ourShader.setVec3("viewPos", Camera::cameraPos);
-            auto model = glm::mat4(1.0f);
-            model = glm::translate(model, Light::position);
-            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-
-            glBindVertexArray(objectVAO);
-            ourShader.setMatrix4("model", model);
-            glDrawArrays(GL_TRIANGLES, interval[0].first, interval[0].second);
-
-            ourShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-            for (size_t i = 1; i < models.size(); ++i) {
-                if (modelTurning) {
-                    model = glm::rotate(models[i]->modelMat,
-                                        static_cast<float>(glfwGetTime()) *
-                                                glm::radians(50.0f),
-                                        glm::vec3(0.5f, 1.0f, 0.0f));
-                } else {
-                    model = models[i]->modelMat;
-                }
-                ourShader.setMatrix4("model", model);
-                glDrawArrays(GL_TRIANGLES, interval[i].first,
-                             interval[i].second);
+            light.drawLight(view, projection);
+            for (auto group: groups) {
+                group.drawGroups(view, projection, light);
             }
 
             glfwSwapBuffers(window);
@@ -221,3 +73,79 @@ public:
         }
     }
 };
+
+
+unsigned int Scene::putDataToGL() {
+    constexpr int stride = 8;
+    // vertices
+    constexpr GLuint vertices_index = 0;
+    constexpr GLint vertices_size = 3;
+    constexpr GLsizei vertices_stride = stride * sizeof(float);
+    const auto vertices_pointer = reinterpret_cast<void *>(0 * sizeof(float));
+
+    // texture coordinate
+    constexpr GLuint coord_index = 1;
+    constexpr GLint coord_size = 2;
+    constexpr GLsizei coord_stride = stride * sizeof(float);
+    const auto coord_pointer = reinterpret_cast<void *>(3 * sizeof(float));
+
+    // normals
+    constexpr GLuint normals_index = 2;
+    constexpr GLint normals_size = 3;
+    constexpr GLsizei normals_stride = stride * sizeof(float);
+    const auto normals_pointer = reinterpret_cast<void *>(5 * sizeof(float));
+
+    // create and bind vertex array object
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    // create vertex buffer object
+    const auto vertices = genGLData();
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
+                 vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(vertices_index, vertices_size, GL_FLOAT, GL_FALSE,
+                          vertices_stride, vertices_pointer);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(coord_index, coord_size, GL_FLOAT, GL_FALSE,
+                          coord_stride, coord_pointer);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(normals_index, normals_size, GL_FLOAT, GL_FALSE,
+                          normals_stride, normals_pointer);
+    glEnableVertexAttribArray(2);
+    return VAO;
+}
+
+vector<float> Scene::genGLData() {
+    vector<shared_ptr<Model>> models = {};
+    models.push_back(light.lightModel);
+    for (auto group: groups) {
+        for (auto model: group.modelGroup) {
+            models.push_back(model);
+        }
+    }
+    const int total_cnts = ranges::fold_left(
+            models, 0, [](const int total, const shared_ptr<Model> &model) {
+                return total + model->vertex_cnt;
+            });
+
+    vector<float> vertices;
+    vertices.reserve(total_cnts * 8);
+    int start_point = 0;
+    for (const auto &model: models) {
+        for (size_t i = 0; i < model->vertex_cnt; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                vertices.push_back(model->vertices[i * 3 + j]);
+            }
+            for (int j = 0; j < 2; ++j) {
+                vertices.push_back(model->texture_coord[i * 2 + j]);
+            }
+            for (int j = 0; j < 3; ++j) {
+                vertices.push_back(model->normals[i * 3 + j]);
+            }
+        }
+        model->setDataPos(start_point, model->vertex_cnt);
+        start_point += model->vertex_cnt;
+    }
+    return vertices;
+}

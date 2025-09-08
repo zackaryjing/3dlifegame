@@ -105,7 +105,8 @@ public:
      * Targeting on normal obj file.
      */
     static inline Model loadModel(string &path) {
-        auto [vertices_raw, normals_raw, texture_coord_raw, faces, material] =
+        auto [vertices_raw, normals_raw, texture_coord_raw, faces,
+              material_name] =
                 loadRawData(path);
 
         VFVec3 vertices;
@@ -158,7 +159,7 @@ public:
                 }
             }
         }
-        return Model::genModel(vertices, normals, texture_coord, material);
+        return Model::genModel(vertices, normals, texture_coord, material_name);
     };
 
 
