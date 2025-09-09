@@ -18,4 +18,11 @@ public:
         ambient(glm::vec3(1.0f, 0.5f, 0.31f)),
         diffuse(glm::vec3(1.0f, 0.5f, 0.31f)),
         specular(glm::vec3(0.5f, 0.5f, 0.5f)), shininess(32.0f), name("") {}
+
+    void setAllSame(glm::vec3 property) {
+        color = property;
+        ambient = property;
+        diffuse = property;
+        specular = property;
+    }
 };

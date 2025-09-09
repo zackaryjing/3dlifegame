@@ -15,8 +15,11 @@ using std::string;
 using std::stringstream;
 
 Shader::Shader(string vertexShaderParam, string fragmentShaderParam,
-               ShaderParamType type) {
+               ShaderParamType type, string shaderName) {
 
+    if (not shaderName.empty()) {
+        cout << "Constructing: " << shaderName << endl;
+    }
     string vShaderCode;
     string fShaderCode;
     if (type == ShaderParamType::PATH) {

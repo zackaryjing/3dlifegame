@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef GLSL_DIR
-#define GLSL_DIR "../src/shaders/" // fallback: 编辑器静态分析用
-#endif
 
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>

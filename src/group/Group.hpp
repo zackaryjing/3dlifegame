@@ -9,23 +9,31 @@ using std::shared_ptr;
 using std::string;
 
 class Group {
+protected:
     Shader groupShader;
 
     static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
-    const bool modelTurning = true;
+    bool modelTurning = false;
     unsigned int groupVAO;
 
 public:
     vector<shared_ptr<Model>> modelGroup;
     Group() :
-        groupShader(vertex_shader, fragment_shader, ShaderParamType::PATH) {
+        groupShader(vertex_shader, fragment_shader, ShaderParamType::PATH,
+                    "groupShader") {
         glGenVertexArrays(1, &groupVAO);
         glBindVertexArray(groupVAO);
     }
+
+    explicit Group(const Shader shader) : groupShader(shader) {
+        glGenVertexArrays(1, &groupVAO);
+        glBindVertexArray(groupVAO);
+    }
+
     void addModel(shared_ptr<Model> model) { modelGroup.push_back(model); };
 
-    void setCommonUni(glm::mat4 view, glm::mat4 projection, Light &light) {
+    void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light) {
         groupShader.setInt("ourTexture", 0);
         groupShader.setMatrix4("view", view);
         groupShader.setMatrix4("projection", projection);
@@ -37,7 +45,7 @@ public:
         groupShader.setVec3("light.color", light.lightColor);
     }
 
-    void setModelUni(shared_ptr<Model> model) {
+    void setModelUniform(shared_ptr<Model> model) {
         groupShader.setVec3("material.color", model->material.color);
         groupShader.setVec3("material.ambient", model->material.ambient);
         groupShader.setVec3("material.diffuse", model->material.diffuse);
@@ -47,9 +55,9 @@ public:
 
     void drawGroups(glm::mat4 view, glm::mat4 projection, Light &light) {
         groupShader.use();
-        setCommonUni(view, projection, light);
+        setCommonUniform(view, projection, light);
         for (auto model: modelGroup) {
-            setModelUni(model);
+            setModelUniform(model);
 
             auto modelMat = glm::mat4(1.0f);
             if (modelTurning) {
@@ -66,14 +74,14 @@ public:
         }
     }
 
-    static inline Group getGroup() {
+    static inline Group getCubeGroup(int n) {
         Group group;
-        for (int i = 0; i < 5; ++i) {
+        group.modelTurning = true;
+        for (int i = 0; i < n; ++i) {
             group.modelGroup.emplace_back(make_shared<Model>(Model::getCube()));
         }
 
-        string model_dir = MODEL_DIR "arrow.obj";
-        group.addModel(make_shared<Model>(ModelLoader::loadModel(model_dir)));
         return group;
     }
 };
+

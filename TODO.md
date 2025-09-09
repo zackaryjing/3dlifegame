@@ -7,3 +7,4 @@
    - [ ] change color shininess... property to Model
    - [ ] change model loader to fill more properties
 - [ ] develop a direction indictor
+- [ ] ubuntu save power tools

@@ -3,12 +3,17 @@
 #include <iostream>
 #include <string>
 
+#ifndef GLSL_DIR
+#define GLSL_DIR "../src/shaders/" // fallback: 编辑器静态分析用
+#endif
+
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::ifstream;
 using std::string;
 using std::stringstream;
+
 
 enum class ShaderParamType { PATH, CODE };
 
@@ -17,7 +22,8 @@ public:
     unsigned int ID;
     Shader() = default;
     Shader(string vertexShaderParam, string fragmentShaderParam,
-           ShaderParamType type = ShaderParamType::PATH);
+           ShaderParamType type = ShaderParamType::PATH,
+           string shaderName = "");
     void use() const;
     void setBool(const string &name, bool value) const;
     void setInt(const string &name, int value) const;

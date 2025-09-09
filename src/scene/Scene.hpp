@@ -10,10 +10,11 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "debug/Error.hpp"
+#include "fonts/Font.hpp"
+#include "group/Gizmo.hpp"
 #include "group/Group.hpp"
 #include "light/Light.hpp"
 #include "model/Model.hpp"
-#include "shaders/Shader.hpp"
 #include "texture/TextureLoader.hpp"
 #include "ui/KeyboardInput.hpp"
 
@@ -24,13 +25,15 @@ class Scene {
 public:
     vector<Group> groups;
     Light light;
+    Fonts font;
+    Gizmo gizmo;
     vector<float> genGLData();
     unsigned int putDataToGL();
     unsigned int VAO;
     unsigned int VBO;
 
     Scene() {
-        groups.push_back(Group::getGroup());
+        groups.push_back(Group::getCubeGroup(5));
         glGenBuffers(1, &VBO);
         VAO = putDataToGL();
     }
@@ -52,7 +55,7 @@ public:
             processInput(window, deltaTime);
 
             const glm::mat4 view = Camera::getView();
-            const glm::mat4 projection = Camera::getProjection();
+            glm::mat4 projection = Camera::getProjection();
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -62,12 +65,16 @@ public:
             for (auto group: groups) {
                 group.drawGroups(view, projection, light);
             }
+            gizmo.drawGroups(view);
+            font.drawText("Hello world", 25.0f, 25.0f, 1.0f,
+                          glm::vec3(0.5f, 0.8f, 0.2f));
+
 
             glfwSwapBuffers(window);
             glfwPollEvents();
             glfwSwapInterval(1);
 
-            const float currentFrame = glfwGetTime();
+            const float currentFrame = (float) glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
         }
@@ -75,7 +82,7 @@ public:
 };
 
 
-unsigned int Scene::putDataToGL() {
+inline unsigned int Scene::putDataToGL() {
     constexpr int stride = 8;
     // vertices
     constexpr GLuint vertices_index = 0;
@@ -101,7 +108,8 @@ unsigned int Scene::putDataToGL() {
     // create vertex buffer object
     const auto vertices = genGLData();
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(),
+    glBufferData(GL_ARRAY_BUFFER,
+                 static_cast<long>(sizeof(float) * vertices.size()),
                  vertices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(vertices_index, vertices_size, GL_FLOAT, GL_FALSE,
@@ -116,7 +124,7 @@ unsigned int Scene::putDataToGL() {
     return VAO;
 }
 
-vector<float> Scene::genGLData() {
+inline vector<float> Scene::genGLData() {
     vector<shared_ptr<Model>> models = {};
     models.push_back(light.lightModel);
     for (auto group: groups) {
@@ -124,6 +132,10 @@ vector<float> Scene::genGLData() {
             models.push_back(model);
         }
     }
+    for (auto model: gizmo.modelGroup) {
+        models.push_back(model);
+    }
+
     const int total_cnts = ranges::fold_left(
             models, 0, [](const int total, const shared_ptr<Model> &model) {
                 return total + model->vertex_cnt;

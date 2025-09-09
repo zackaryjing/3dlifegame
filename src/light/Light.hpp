@@ -28,13 +28,13 @@ public:
     const bool lightTurning = true;
 
     void propertySpin();
-    void setCommonUni(glm::mat4 view, glm::mat4 projection) {
+    void setCommonUniform(glm::mat4 view, glm::mat4 projection) {
         lightShader.setInt("ourTexture", 0);
         lightShader.setMatrix4("view", view);
         lightShader.setMatrix4("projection", projection);
     }
 
-    void setModelUni() {
+    void setLightUniform() {
         lightShader.setVec3("light.position", position);
         lightShader.setVec3("light.ambient", ambientColor);
         lightShader.setVec3("light.diffuse", diffuseColor);
@@ -47,8 +47,8 @@ public:
             propertySpin();
         }
         lightShader.use();
-        setCommonUni(view, projection);
-        setModelUni();
+        setCommonUniform(view, projection);
+        setLightUniform();
         auto model = glm::mat4(1.0f);
         model = glm::translate(model, position);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));

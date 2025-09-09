@@ -10,6 +10,7 @@ public:
     static inline int height;
     static inline int width;
     static inline float ratio = 0.8;
+    static inline float aspect_ratio = 1.2;
     static inline const char *name = "LifeGame";
     static inline bool hasInit = false;
 
@@ -20,8 +21,10 @@ public:
             const GLFWvidmode *mode = glfwGetVideoMode(primary);
             screenWidth = mode->width;
             screenHeight = mode->height;
-            height = (int) (ratio * (float) screenHeight);
-            width = (int) (ratio * (float) screenWidth);
+            height = static_cast<int>(ratio * static_cast<float>(screenHeight));
+            width = static_cast<int>(ratio * static_cast<float>(screenWidth));
+            aspect_ratio = static_cast<float>(screenWidth) /
+                           static_cast<float>(screenHeight);
         }
     };
 };
