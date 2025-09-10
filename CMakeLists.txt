@@ -28,12 +28,13 @@ add_library(common_headers INTERFACE
         src/fonts/Font.hpp
         src/group/Group.hpp
         src/model/Material.hpp
+        src/ui/KeyboardInput.hpp
 )
 target_link_libraries(common_headers INTERFACE Freetype::Freetype)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 add_library(common INTERFACE)
-target_link_libraries(common INTERFACE glfw glm::glm glad::glad OpenGL::GL common_headers)
+target_link_libraries(common INTERFACE glfw glm::glm glad::glad OpenGL::GL imgui::imgui common_headers)
 
 add_executable(LifeGame src/main.cpp src/shaders/Shader.cpp ./deps/stb/stb_image.h)
 target_link_libraries(LifeGame PUBLIC common)

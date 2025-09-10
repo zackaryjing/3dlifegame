@@ -7,9 +7,12 @@
 using namespace std;
 
 class Keyboard {
+    virtual void processInput();
+}
+
+class KeyboardMoveControl : Keyboard {
 public:
-    static void processInput(GLFWwindow *window, float deltaTime,
-                             Camera &camera) {
+    void processInput(GLFWwindow *window, float deltaTime, Camera &camera) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
         }
@@ -34,3 +37,14 @@ public:
     }
 
 };
+
+class KeyboardManager() {
+public:
+    static Keyboard keyboard;
+    static setKeyboard(Keyboard& newKeyboard) {
+        keyboard = newKeyboard;
+    }
+    static void processInput(GLFWwindow *window, float deltaTime, Camera &camera) {
+        keyboard.processInput(GLFWwindow *window, float deltaTime, Camera &camera)
+    }
+}

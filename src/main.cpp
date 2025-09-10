@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <iostream>
 #include "scene/Scene.hpp"
 #include "ui/CursorInput.hpp"
@@ -7,16 +10,19 @@
 
 using namespace std;
 
+static void glfw_error_callback(int error, const char *description) {
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
 
 int main() {
+    glfwSetErrorCallback(glfw_error_callback);
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_ANY_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
     Window::init();
-
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
     GLFWwindow *window = glfwCreateWindow(Window::width, Window::height,
                                           Window::name, nullptr, nullptr);
@@ -26,6 +32,10 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+
+
+
     if (not gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;

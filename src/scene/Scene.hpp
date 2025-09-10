@@ -30,7 +30,7 @@ public:
     Gizmo gizmo;
     Camera camera;
     Cursor cursor;
-    Keyboard keyboard;
+    KeyboardMoveControl keyboard_move_control;
     vector<float> genGLData();
     unsigned int putDataToGL();
     unsigned int VAO;
@@ -42,6 +42,7 @@ public:
         glfwSetCursorPosCallback(window, GlobalCursor::mouse_callback);
         glfwSetScrollCallback(window, GlobalCursor::scroll_callback);
         glfwSetWindowFocusCallback(window, GlobalCursor::window_focus_callback);
+        KeyboardManager::setKeyboard(keyboard_move_control);
     }
 
     Scene(GLFWwindow *window) : cursor(camera), window(window) {
@@ -53,19 +54,41 @@ public:
 
     void render() {
         glEnable(GL_DEPTH_TEST);
-
         unsigned int texture = create_brick_wall_texture();
-
-
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);
+
+
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+        if (not ImGui_ImplGlfw_InitForOpenGL(window, true)) {
+            cerr << "Failed to initialize ImGuiGlfwForOpenGL" << endl;
+            return;
+        }
+        if (not ImGui_ImplOpenGL3_Init()) {
+            cerr << "Failed to initialize ImGuiOpenGL3" << endl;
+            return;
+        }
+
 
         float deltaTime = 0.0f;
         float lastFrame = 0.0f;
 
         while (not glfwWindowShouldClose(window)) {
+
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::ShowDemoWindow();
+
             glCheckError();
-            keyboard.processInput(window, deltaTime, camera);
+            keyboardManager::processInput(window, deltaTime, camera);
 
             const glm::mat4 view = camera.getView();
             glm::mat4 projection = camera.getProjection();
@@ -90,6 +113,9 @@ public:
             const float currentFrame = (float) glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     }
 };
