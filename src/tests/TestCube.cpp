@@ -5,8 +5,8 @@
 #include <iostream>
 #include <unistd.h>
 #include "model/Cube.hpp"
+#include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
-#include "ui/MouseInput.hpp"
 
 using namespace std;
 

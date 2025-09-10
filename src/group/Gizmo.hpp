@@ -39,12 +39,12 @@ public:
         modelGroup[2]->material.setAllSame(glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
-    void setCommonUniform(const glm::mat4 view) {
+    void setCommonUniform(const glm::mat4 view, glm::vec3 cameraPos) {
         auto rotation = glm::mat4(glm::mat3(view));
         gizmoShader.setInt("ourTexture", 0);
         gizmoShader.setMatrix4("view", rotation);
         gizmoShader.setMatrix4("projection", projection);
-        gizmoShader.setVec3("viewPos", Camera::cameraPos);
+        gizmoShader.setVec3("viewPos", cameraPos);
         gizmoShader.setVec3("light.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
         gizmoShader.setVec3("light.color", glm::vec3(0.8f, 0.8f, 0.8f));
     }
@@ -54,9 +54,9 @@ public:
         gizmoShader.setVec3("material.ambient", model->material.ambient);
         gizmoShader.setMatrix4("model", model->modelMat);
     }
-    void drawGroups(const glm::mat4 &view) {
+    void drawGroups(const glm::mat4 &view, glm::vec3 cameraPos) {
         gizmoShader.use();
-        setCommonUniform(view);
+        setCommonUniform(view, cameraPos);
         for (auto model: modelGroup) {
             setGizmoUniform(model);
             glDrawArrays(GL_TRIANGLES, model->dataPos.first,

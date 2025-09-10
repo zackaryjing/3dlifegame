@@ -16,6 +16,7 @@
 #include "light/Light.hpp"
 #include "model/Model.hpp"
 #include "texture/TextureLoader.hpp"
+#include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
 
 using std::vector;
@@ -27,18 +28,30 @@ public:
     Light light;
     Fonts font;
     Gizmo gizmo;
+    Camera camera;
+    Cursor cursor;
+    Keyboard keyboard;
     vector<float> genGLData();
     unsigned int putDataToGL();
     unsigned int VAO;
     unsigned int VBO;
+    GLFWwindow *window;
 
-    Scene() {
+    void takeControl() {
+        GlobalCursor::setCursor(&cursor);
+        glfwSetCursorPosCallback(window, GlobalCursor::mouse_callback);
+        glfwSetScrollCallback(window, GlobalCursor::scroll_callback);
+        glfwSetWindowFocusCallback(window, GlobalCursor::window_focus_callback);
+    }
+
+    Scene(GLFWwindow *window) : cursor(camera), window(window) {
         groups.push_back(Group::getCubeGroup(5));
         glGenBuffers(1, &VBO);
         VAO = putDataToGL();
+        takeControl();
     }
 
-    void render(GLFWwindow *window) {
+    void render() {
         glEnable(GL_DEPTH_TEST);
 
         unsigned int texture = create_brick_wall_texture();
@@ -52,10 +65,10 @@ public:
 
         while (not glfwWindowShouldClose(window)) {
             glCheckError();
-            processInput(window, deltaTime);
+            keyboard.processInput(window, deltaTime, camera);
 
-            const glm::mat4 view = Camera::getView();
-            glm::mat4 projection = Camera::getProjection();
+            const glm::mat4 view = camera.getView();
+            glm::mat4 projection = camera.getProjection();
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -63,9 +76,9 @@ public:
 
             light.drawLight(view, projection);
             for (auto group: groups) {
-                group.drawGroups(view, projection, light);
+                group.drawGroups(view, projection, light, camera.cameraPos);
             }
-            gizmo.drawGroups(view);
+            gizmo.drawGroups(view, camera.cameraPos);
             font.drawText("Hello world", 25.0f, 25.0f, 1.0f,
                           glm::vec3(0.5f, 0.8f, 0.2f));
 

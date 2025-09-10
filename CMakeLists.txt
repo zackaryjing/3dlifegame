@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(LifeGmae)
 
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Werror)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -14,6 +14,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(Freetype CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 

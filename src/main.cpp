@@ -2,8 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include "scene/Scene.hpp"
-#include "ui/KeyboardInput.hpp"
-#include "ui/MouseInput.hpp"
+#include "ui/CursorInput.hpp"
 #include "ui/Window.hpp"
 
 using namespace std;
@@ -25,7 +24,8 @@ int main() {
         cerr << "Failed to create GLFW window" << endl;
         glfwTerminate();
         return -1;
-    } glfwMakeContextCurrent(window);
+    }
+    glfwMakeContextCurrent(window);
     if (not gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
@@ -63,11 +63,7 @@ int main() {
     }
 
 
-    glfwSetCursorPosCallback(window, Cursor::mouse_callback);
-    glfwSetScrollCallback(window, Cursor::scroll_callback);
-    glfwSetWindowFocusCallback(window, Cursor::window_focus_callback);
-
-    Scene scene;
-    scene.render(window);
+    Scene scene(window);
+    scene.render();
     return 0;
 }

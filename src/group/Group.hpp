@@ -21,23 +21,18 @@ public:
     vector<shared_ptr<Model>> modelGroup;
     Group() :
         groupShader(vertex_shader, fragment_shader, ShaderParamType::PATH,
-                    "groupShader") {
-        glGenVertexArrays(1, &groupVAO);
-        glBindVertexArray(groupVAO);
-    }
+                    "groupShader") {}
 
-    explicit Group(const Shader shader) : groupShader(shader) {
-        glGenVertexArrays(1, &groupVAO);
-        glBindVertexArray(groupVAO);
-    }
+    explicit Group(const Shader shader) : groupShader(shader) {}
 
     void addModel(shared_ptr<Model> model) { modelGroup.push_back(model); };
 
-    void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light) {
+    void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light,
+                          glm::vec3 cameraPos) {
         groupShader.setInt("ourTexture", 0);
         groupShader.setMatrix4("view", view);
         groupShader.setMatrix4("projection", projection);
-        groupShader.setVec3("viewPos", Camera::cameraPos);
+        groupShader.setVec3("viewPos", cameraPos);
         groupShader.setVec3("light.position", light.position);
         groupShader.setVec3("light.ambient", light.ambientColor);
         groupShader.setVec3("light.diffuse", light.diffuseColor);
@@ -53,9 +48,10 @@ public:
         groupShader.setFloat("material.shininess", model->material.shininess);
     }
 
-    void drawGroups(glm::mat4 view, glm::mat4 projection, Light &light) {
+    void drawGroups(glm::mat4 view, glm::mat4 projection, Light &light,
+                    glm::vec3 cameraPos) {
         groupShader.use();
-        setCommonUniform(view, projection, light);
+        setCommonUniform(view, projection, light, cameraPos);
         for (auto model: modelGroup) {
             setModelUniform(model);
 
@@ -84,4 +80,3 @@ public:
         return group;
     }
 };
-

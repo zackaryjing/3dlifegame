@@ -6,32 +6,32 @@
 #include "ui/Window.hpp"
 
 struct Camera {
-    static inline auto cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    static inline auto cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    static inline auto cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
-    static inline auto cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    static inline auto direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    static inline auto worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    static inline float cameraSpeed = 2.5;
-    static inline float yaw = -90.0f;
-    static inline float pitch = 0.0f;
-    static inline float fov = 45.0f;
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    float cameraSpeed = 2.5;
+    float yaw = -90.0f;
+    float pitch = 0.0f;
+    float fov = 45.0f;
 
 
-    static auto getView() {
+    auto getView() {
         return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     }
 
-    static auto getProjection() {
+    auto getProjection() {
         return glm::perspective(glm::radians(fov),
                                 (float) Window::width / (float) Window::height,
                                 0.1f, 100.0f);
     }
 
 
-    static void setFov(const float _fov) { fov = _fov; }
+    void setFov(const float _fov) { fov = _fov; }
 
-    static void lookAround(const float yoffset, const float xoffset) {
+    void lookAround(const float yoffset, const float xoffset) {
         pitch += yoffset;
         if (pitch > 89.0f)
             pitch = 89.0f;
@@ -47,27 +47,27 @@ struct Camera {
         cameraUp = glm::cross(cameraRight, cameraFront);
     }
 
-    static void moveForward(const float deltaTime) {
+    void moveForward(const float deltaTime) {
         cameraPos += deltaTime * cameraSpeed * cameraFront;
     }
 
-    static void moveBackward(const float deltaTime) {
+    void moveBackward(const float deltaTime) {
         cameraPos -= deltaTime * cameraSpeed * cameraFront;
     }
 
-    static void moveUpward(const float deltaTime) {
+    void moveUpward(const float deltaTime) {
         cameraPos += deltaTime * cameraSpeed * cameraUp;
     }
 
-    static void moveDownward(const float deltaTime) {
+    void moveDownward(const float deltaTime) {
         cameraPos -= deltaTime * cameraSpeed * cameraUp;
     }
 
-    static void moveRight(const float deltaTime) {
+    void moveRight(const float deltaTime) {
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) *
                      cameraSpeed * deltaTime;
     }
-    static void moveLeft(const float deltaTime) {
+    void moveLeft(const float deltaTime) {
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) *
                      cameraSpeed * deltaTime;
     }
