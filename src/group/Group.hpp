@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
+
+#include "geometry/Icosahedron.hpp"
 #include "light/Light.hpp"
 #include "model/Model.hpp"
 #include "model/ModelLoader.hpp"
@@ -70,12 +72,17 @@ public:
         }
     }
 
-    static inline Group getCubeGroup(int n) {
+    static inline Group getDemoGroup(int n) {
         Group group;
         group.modelTurning = true;
         for (int i = 0; i < n; ++i) {
             group.modelGroup.emplace_back(make_shared<Model>(Model::getCube()));
         }
+        group.modelGroup.push_back(make_shared<Model>(Icosahedron::toModel()));
+
+        // string model_dir = MODEL_DIR "arrow.obj";
+        // group.modelGroup.push_back(
+        //         make_shared<Model>(ModelLoader::loadModel(model_dir)));
 
         return group;
     }

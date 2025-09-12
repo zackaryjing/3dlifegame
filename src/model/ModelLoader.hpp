@@ -106,8 +106,7 @@ public:
      */
     static inline Model loadModel(string &path) {
         auto [vertices_raw, normals_raw, texture_coord_raw, faces,
-              material_name] =
-                loadRawData(path);
+              material_name] = loadRawData(path);
 
         VFVec3 vertices;
         VFVec3 normals;

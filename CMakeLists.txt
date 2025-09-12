@@ -29,6 +29,7 @@ add_library(common_headers INTERFACE
         src/group/Group.hpp
         src/model/Material.hpp
         src/ui/KeyboardInput.hpp
+        src/geometry/Icosahedron.hpp
 )
 target_link_libraries(common_headers INTERFACE Freetype::Freetype)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)

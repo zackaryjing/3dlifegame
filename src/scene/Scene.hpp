@@ -39,14 +39,14 @@ public:
 
     void takeControl() {
         GlobalCursor::setCursor(&cursor);
+        GlobalKeyboard::setKeyboard(&keyboard_move_control);
         glfwSetCursorPosCallback(window, GlobalCursor::mouse_callback);
         glfwSetScrollCallback(window, GlobalCursor::scroll_callback);
         glfwSetWindowFocusCallback(window, GlobalCursor::window_focus_callback);
-        KeyboardManager::setKeyboard(keyboard_move_control);
     }
 
     Scene(GLFWwindow *window) : cursor(camera), window(window) {
-        groups.push_back(Group::getCubeGroup(5));
+        groups.push_back(Group::getDemoGroup(5));
         glGenBuffers(1, &VBO);
         VAO = putDataToGL();
         takeControl();
@@ -57,7 +57,6 @@ public:
         unsigned int texture = create_brick_wall_texture();
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);
-
 
 
         IMGUI_CHECKVERSION();
@@ -88,7 +87,7 @@ public:
             ImGui::ShowDemoWindow();
 
             glCheckError();
-            keyboardManager::processInput(window, deltaTime, camera);
+            GlobalKeyboard::processInput(window, deltaTime, camera);
 
             const glm::mat4 view = camera.getView();
             glm::mat4 projection = camera.getProjection();
@@ -146,6 +145,7 @@ inline unsigned int Scene::putDataToGL() {
     glBindVertexArray(VAO);
     // create vertex buffer object
     const auto vertices = genGLData();
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER,
                  static_cast<long>(sizeof(float) * vertices.size()),
@@ -166,6 +166,7 @@ inline unsigned int Scene::putDataToGL() {
 inline vector<float> Scene::genGLData() {
     vector<shared_ptr<Model>> models = {};
     models.push_back(light.lightModel);
+
     for (auto group: groups) {
         for (auto model: group.modelGroup) {
             models.push_back(model);

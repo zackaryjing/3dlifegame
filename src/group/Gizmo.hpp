@@ -19,9 +19,10 @@ public:
         gizmoShader(vertex_shader, fragment_shader, ShaderParamType::PATH,
                     "gizmoShader") {
         string model_dir = MODEL_DIR "arrow.obj";
-        addModel(make_shared<Model>(ModelLoader::loadModel(model_dir)));
-        addModel(make_shared<Model>(ModelLoader::loadModel(model_dir)));
-        addModel(make_shared<Model>(ModelLoader::loadModel(model_dir)));
+        const auto arrow = ModelLoader::loadModel(model_dir);
+        addModel(make_shared<Model>(arrow));
+        addModel(make_shared<Model>(arrow));
+        addModel(make_shared<Model>(arrow));
         auto modelx = glm::mat4(1.0f), modely = glm::mat4(1.0f),
              modelz = glm::mat4(1.0f);
         modelx = glm::rotate(modelx, glm::radians(90.0f),
