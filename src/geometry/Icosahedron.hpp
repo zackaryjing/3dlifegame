@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/vec3.hpp>
@@ -28,6 +30,13 @@ public:
     float midHeight; // truncated pentagonal bipyramid
     float pyramidAltitude;
     float sphereCircumradius;
+    float sphereRadiusEdgeRatio;
+    VIVec3 faceIndices = {
+            {0, 1, 2},   {0, 2, 3},   {0, 3, 4},  {0, 4, 5},  {0, 5, 1}, //
+            {1, 10, 2},  {2, 6, 3},   {3, 7, 4},  {4, 8, 5},  {5, 9, 1}, //
+            {6, 2, 10},  {10, 1, 9},  {9, 5, 8},  {8, 4, 7},  {7, 3, 6}, //
+            {11, 6, 10}, {11, 10, 9}, {11, 9, 8}, {11, 8, 7}, {11, 7, 6}};
+    VFVec3 points;
     explicit Icosahedron(float edgeLength) : edgeLength(edgeLength) {
         crossSectionInradius = edgeLength / (2.0f * tan36);
         crossSectionCircumradius = edgeLength / (2.0f * sin36);
@@ -40,11 +49,8 @@ public:
                 sqrt(edgeLength * edgeLength -
                      crossSectionCircumradius * crossSectionCircumradius));
         sphereCircumradius = midHeight / 2.0f + pyramidAltitude;
-    }
-    static Type::FVec3 rotateXY(Type::FVec3 origin, const float radius) {
-        const float x = get<0>(origin), y = get<1>(origin), z = get<2>(origin);
-        return {x * cos(radius) - y * sin(radius),
-                x * sin(radius) + y * cos(radius), z};
+        sphereRadiusEdgeRatio = sphereCircumradius / edgeLength;
+        points = getPoints();
     }
 
     VFVec3 getPoints() {
@@ -69,15 +75,9 @@ public:
         return res;
     }
 
-    static Model toModel() {
-        Icosahedron instance(0.5f);
-        VIVec3 faceIndices = {
-                {0, 1, 2},   {0, 2, 3},  {0, 3, 4},  {0, 4, 5},  {0, 5, 1}, //
-                {1, 10, 2},  {2, 6, 3},  {3, 7, 4},  {4, 8, 5},  {5, 9, 1}, //
-                {6, 2, 10},  {10, 1, 9}, {9, 5, 8},  {8, 4, 7},  {7, 3, 6}, //
-                {11, 6, 10}, {11, 10, 9}, {11, 9, 8}, {11, 8, 7}, {11, 7, 6}};
-        auto points = instance.getPoints();
+    Model toModel() {
         // showVFVec3(points);
-        return Model::genModel(instance.getPoints(), faceIndices);
+        return Model::genModel(points, faceIndices,
+                               ModelNormalGenType::VERTEXBASED);
     }
 };

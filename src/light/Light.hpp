@@ -73,9 +73,9 @@ Light::Light() {
 
 void Light::propertySpin() {
 
-    lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) * 0.5f + 1;
-    lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) * 0.5f + 1;
-    lightColor.y = static_cast<float>(sin(glfwGetTime() * 1.3f)) * 0.5f + 1;
+    lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) * 0.25f + 0.75;
+    lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) * 0.25f + 0.75;
+    lightColor.y = static_cast<float>(sin(glfwGetTime() * 1.3f)) * 0.25f + 0.75;
 
     position = glm::vec3(
             glm::rotate(glm::mat4(1.0f),
@@ -83,6 +83,6 @@ void Light::propertySpin() {
                         glm::vec3(0.0f, 0.0f, 1.0f)) *
             glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
 
-    diffuseColor = lightColor * glm::vec3(0.5f);
+    diffuseColor = lightColor * glm::vec3(0.7f);
     ambientColor = lightColor * glm::vec3(0.2f);
 }

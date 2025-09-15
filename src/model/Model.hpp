@@ -1,4 +1,3 @@
-// Add more models in one scene
 #pragma once
 
 #include <GLFW/glfw3.h>
@@ -12,27 +11,25 @@
 #include "utils/Type.hpp"
 using std::copy_n;
 using std::make_pair;
-using std::make_unique;
 using std::pair;
 using std::tuple;
-using std::unique_ptr;
 using Type::VFVec2;
 using Type::VFVec3;
 using Type::VIVec3;
 
+
+enum class ModelNormalGenType { FACEBASED, VERTEXBASED };
 
 // model shouldn't have a render function.
 // render a model is managed by the scene
 class Model {
 public:
     Model() = default;
-    unique_ptr<float[]> vertices = {};
-    unique_ptr<float[]> texture_coord = {};
-    unique_ptr<float[]> normals = {};
+    vector<float> vertices = {};
+    vector<float> texture_coord = {};
+    vector<float> normals = {};
     string material_name;
     size_t vertex_cnt = {};
-
-
     Material material;
     glm::vec3 position = {};
     glm::mat4 modelMat = {};
@@ -40,63 +37,53 @@ public:
     pair<int, int> dataPos;
 
     void setDataPos(int start, int cnt) { dataPos = make_pair(start, cnt); }
-    Model(const Model &other) :
-        vertices(std::make_unique<float[]>(other.vertex_cnt * 3)),
-        texture_coord(std::make_unique<float[]>(other.vertex_cnt * 2)),
-        normals(std::make_unique<float[]>(other.vertex_cnt * 3)),
-        material_name(other.material_name), vertex_cnt(other.vertex_cnt),
-        material(other.material), position(other.position),
-        modelMat(other.modelMat), dataPos(other.dataPos) {
-
-        std::copy_n(other.vertices.get(), vertex_cnt * 3, vertices.get());
-        std::copy_n(other.texture_coord.get(), vertex_cnt * 2,
-                    texture_coord.get());
-        std::copy_n(other.normals.get(), vertex_cnt * 3, normals.get());
-    }
-
-
-    Model &operator=(const Model &other) {
-        if (this != &other) {
-            Model tmp(other);
-            std::swap(*this, tmp);
-        }
-        return *this;
-    }
 
     Model(Model &&) = default;
     Model &operator=(Model &&) = default;
+    Model(const Model &other) = default;
+    Model &operator=(const Model &other) = default;
 
-    static Model genModel(VFVec3 vertices, const VIVec3 &faceIndices);
+    static Model genModel(VFVec3 vertices, const VIVec3 &faceIndices,
+                          ModelNormalGenType model_normal_gen);
 
     static Model genModel(VFVec3 vertices, VFVec3 normals, VFVec2 texture_coord,
                           string material_name);
 
-    static glm::vec3 randomVec3(const float min, const float max);
+    static glm::vec3 randomVec3(float min, float max);
 
     static Model getCube();
 
     static Model getTriangle();
 };
-inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices) {
+inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
+                             const ModelNormalGenType model_normal_gen =
+                                     ModelNormalGenType::FACEBASED) {
     size_t n = faceIndices.size() * 3;
     VFVec3 fullVertices(n * 3);
     VFVec3 fullNormals(n * 3);
     VFVec2 fullTexture(n * 3);
     auto center = getAvgCenter(vertices);
-    for (auto [index,face]: std::views::enumerate(faceIndices)) {
-        auto vertexA = get<0>(face);
-        auto vertexB = get<1>(face);
-        auto vertexC = get<2>(face);
-        fullVertices[index * 3] = vertices[vertexA];
-        fullVertices[index * 3 + 1] = vertices[vertexB];
-        fullVertices[index * 3 + 2] = vertices[vertexC];
-        auto faceNormal = normalize(substract(
-                getAvgCenter({fullVertices[index * 3], fullVertices[index * 3 + 1],
-                              fullVertices[index * 3 + 2]}),
-                center));
-        fullNormals[index * 3] = faceNormal;
-        fullNormals[index * 3 + 1] = faceNormal;
-        fullNormals[index * 3 + 2] = faceNormal;
+    for (auto [index, face]: std::views::enumerate(faceIndices)) {
+        auto vertexA = vertices[get<0>(face)];
+        auto vertexB = vertices[get<1>(face)];
+        auto vertexC = vertices[get<2>(face)];
+        fullVertices[index * 3] = vertexA;
+        fullVertices[index * 3 + 1] = vertexB;
+        fullVertices[index * 3 + 2] = vertexC;
+        auto faceNormal =
+                normalize(substract(getAvgCenter({fullVertices[index * 3],
+                                                  fullVertices[index * 3 + 1],
+                                                  fullVertices[index * 3 + 2]}),
+                                    center));
+        if (model_normal_gen == ModelNormalGenType::FACEBASED) {
+            fullNormals[index * 3] = faceNormal;
+            fullNormals[index * 3 + 1] = faceNormal;
+            fullNormals[index * 3 + 2] = faceNormal;
+        } else if (model_normal_gen == ModelNormalGenType::VERTEXBASED) {
+            fullNormals[index * 3] = normalize(substract(vertexA, center));
+            fullNormals[index * 3 + 1] = normalize(substract(vertexB, center));
+            fullNormals[index * 3 + 2] = normalize(substract(vertexC, center));
+        }
         fullTexture[index * 3] = {1.0, 1.0};
         fullTexture[index * 3 + 1] = {1.0, 1.0};
         fullTexture[index * 3 + 2] = {1.0, 1.0};
@@ -113,21 +100,21 @@ inline Model Model::genModel(VFVec3 vertices, VFVec3 normals,
     if (n != m or m != l) {
         throw std::invalid_argument("params should be of the same length");
     }
-    instance.vertices = make_unique<float[]>(n * 3);
+    instance.vertices = vector<float>(n * 3);
     for (size_t i = 0; i < n; ++i) {
         auto vertex = vertices[i];
         instance.vertices[i * 3] = get<0>(vertex);
         instance.vertices[i * 3 + 1] = get<1>(vertex);
         instance.vertices[i * 3 + 2] = get<2>(vertex);
     }
-    instance.normals = make_unique<float[]>(n * 3);
+    instance.normals = vector<float>(n * 3);
     for (size_t i = 0; i < n; ++i) {
         auto normal = normals[i];
         instance.normals[i * 3] = get<0>(normal);
         instance.normals[i * 3 + 1] = get<1>(normal);
         instance.normals[i * 3 + 2] = get<2>(normal);
     }
-    instance.texture_coord = make_unique<float[]>(n * 2);
+    instance.texture_coord = vector<float>(n * 2);
     for (size_t i = 0; i < n; ++i) {
         auto coord = texture_coord[i];
         instance.texture_coord[i * 2] = get<0>(coord);
@@ -147,7 +134,7 @@ inline glm::vec3 Model::randomVec3(const float min, const float max) {
 }
 inline Model Model::getCube() {
     Model instance;
-    constexpr float vertices_data[] = {
+    const vector vertices_data = {
             -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,
             0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,
             0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
@@ -162,7 +149,7 @@ inline Model Model::getCube() {
             0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f,
     };
 
-    constexpr float texture_coord_data[] = {
+    const vector texture_coord_data = {
             0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
             1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -172,7 +159,7 @@ inline Model Model::getCube() {
             1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     };
 
-    constexpr float normals_data[] = {
+    const vector normals_data = {
             0.0f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,  0.0f,
             0.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f,  0.0f,
             -1.0f, 0.0f,  0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f,
@@ -187,12 +174,9 @@ inline Model Model::getCube() {
     };
 
     instance.vertex_cnt = 36;
-    instance.vertices = make_unique<float[]>(36 * 3);
-    copy_n(vertices_data, 36 * 3, instance.vertices.get());
-    instance.texture_coord = make_unique<float[]>(36 * 2);
-    copy_n(texture_coord_data, 36 * 2, instance.texture_coord.get());
-    instance.normals = make_unique<float[]>(36 * 3);
-    copy_n(normals_data, 36 * 3, instance.normals.get());
+    instance.vertices = vertices_data;
+    instance.texture_coord = texture_coord_data;
+    instance.normals = normals_data;
     instance.position = randomVec3(-3, 0);
     glm::mat4 modelMat = glm::rotate(glm::mat4(1.0f),
                                      static_cast<float>(rand()) /
@@ -207,23 +191,20 @@ inline Model Model::getCube() {
 }
 inline Model Model::getTriangle() {
     Model instance;
-    constexpr float vertices_data[] = {
+    const vector vertices_data = {
             -0.5f, -0.5f, -0.5f, //
             0.5f,  -0.5f, -0.5f, //
             0.0f,  0.5f,  -0.5f,
     };
-    constexpr float texture_coord_data[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f};
-    constexpr float normals_data[] = {
+    const vector texture_coord_data = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f};
+    const vector normals_data = {
             0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
     };
 
     instance.vertex_cnt = 3;
-    instance.vertices = make_unique<float[]>(3 * 3);
-    copy_n(vertices_data, 3 * 3, instance.vertices.get());
-    instance.texture_coord = make_unique<float[]>(3 * 2);
-    copy_n(texture_coord_data, 3 * 2, instance.texture_coord.get());
-    instance.normals = make_unique<float[]>(3 * 3);
-    copy_n(normals_data, 3 * 3, instance.normals.get());
+    instance.vertices = vertices_data;
+    instance.texture_coord = texture_coord_data;
+    instance.normals = normals_data;
     instance.position = glm::vec3(0.0f, 0.0f, -0.5f);
     instance.modelMat = glm::mat4(1.0f);
 
