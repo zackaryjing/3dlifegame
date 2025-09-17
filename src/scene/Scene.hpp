@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <format>
 #include <limits>
 #include <numeric>
 #include <ranges>
@@ -26,7 +27,7 @@ class Scene {
 public:
     vector<Group> groups;
     Light light;
-    Fonts font;
+    FontPixelStyle font;
     Gizmo gizmo;
     Camera camera;
     Cursor cursor;
@@ -50,6 +51,11 @@ public:
         glGenBuffers(1, &VBO);
         VAO = putDataToGL();
         takeControl();
+    }
+
+    string getText() {
+        return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f}", camera.yaw,
+                           camera.pitch, camera.fov);
     }
 
     void render() {
@@ -101,7 +107,7 @@ public:
                 group.drawGroups(view, projection, light, camera.cameraPos);
             }
             gizmo.drawGroups(view, camera.cameraPos);
-            font.drawText("Hello world", 25.0f, 25.0f, 1.0f,
+            font.drawText(getText(), 25.0f, 25.0f, 2.0f,
                           glm::vec3(0.5f, 0.8f, 0.2f));
 
 

@@ -17,3 +17,9 @@ if you want to specify the toolchain
 ```
 -DCMAKE_TOOLCHAIN_FILE=...\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic
 ```
+
+
+loc count:
+```shell
+ git ls-files | cloc --list-file=- --exclude-dir=assets,deps
+```

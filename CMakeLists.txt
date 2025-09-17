@@ -4,7 +4,7 @@ project(LifeGmae)
 
 set(CMAKE_CXX_STANDARD 26)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -Werror)
+    add_compile_options(-Wall -Wextra)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(/W4 /WX)
 endif ()
@@ -26,6 +26,7 @@ add_library(common_headers INTERFACE
         src/utils/Type.hpp
         src/debug/Error.hpp
         src/fonts/Font.hpp
+        src/fonts/BmpLoader.hpp
         src/group/Group.hpp
         src/model/Material.hpp
         src/ui/KeyboardInput.hpp
@@ -40,6 +41,7 @@ target_link_libraries(common INTERFACE glfw glm::glm glad::glad OpenGL::GL imgui
 
 add_executable(LifeGame src/main.cpp src/shaders/Shader.cpp ./deps/stb/stb_image.h)
 target_link_libraries(LifeGame PUBLIC common)
+target_compile_options(LifeGame PRIVATE -Werror)
 
 add_executable(LifeGameCubeTest
         src/tests/TestCube.cpp src/shaders/Shader.cpp
@@ -58,3 +60,6 @@ add_executable(LifeGameFuncTest src/tests/TestFunc.cpp)
 
 add_executable(LifeGameNodeTest src/tests/TestNode.cpp)
 target_link_libraries(LifeGameNodeTest PUBLIC common)
+
+add_executable(LifeGameFontTest src/tests/TestFont.cpp)
+target_link_libraries(LifeGameFontTest PUBLIC common)
