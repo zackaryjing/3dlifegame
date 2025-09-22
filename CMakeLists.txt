@@ -10,13 +10,12 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif ()
 
 
-find_package(glfw3 CONFIG REQUIRED)
+find_package(glfw3 3.3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
-find_package(Freetype CONFIG REQUIRED)
+find_package(Freetype 2.10 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
-
 
 add_library(common_headers INTERFACE
         deps/stb/stb_image.h
@@ -63,3 +62,6 @@ target_link_libraries(LifeGameNodeTest PUBLIC common)
 
 add_executable(LifeGameFontTest src/tests/TestFont.cpp)
 target_link_libraries(LifeGameFontTest PUBLIC common)
+
+add_executable(LifeGameImGuiTest src/tests/TestImGui.cpp)
+target_link_libraries(LifeGameImGuiTest PUBLIC common)

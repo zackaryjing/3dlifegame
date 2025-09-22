@@ -34,8 +34,6 @@ int main() {
     glfwMakeContextCurrent(window);
 
 
-
-
     if (not gladLoadGLLoader(
                 reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         cerr << "Failed to initialize GLAD" << endl;
@@ -66,14 +64,12 @@ int main() {
     cout << "Maximum number of vertex attributes supported: " << nrAttributes
          << endl;
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    if (glfwRawMouseMotionSupported()) {
-        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    }
 
 
     Scene scene(window);
     scene.render();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }

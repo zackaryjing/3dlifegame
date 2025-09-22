@@ -9,6 +9,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "debug/Error.hpp"
 #include "fonts/Font.hpp"
@@ -71,6 +74,8 @@ public:
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        Window::commonWindowInit(io);
+        ImGui::StyleColorsDark();
 
         if (not ImGui_ImplGlfw_InitForOpenGL(window, true)) {
             cerr << "Failed to initialize ImGuiGlfwForOpenGL" << endl;
@@ -86,21 +91,15 @@ public:
         float lastFrame = 0.0f;
 
         while (not glfwWindowShouldClose(window)) {
-
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-            ImGui::ShowDemoWindow();
-
+            glfwPollEvents();
             glCheckError();
             GlobalKeyboard::processInput(window, deltaTime, camera);
-
-            const glm::mat4 view = camera.getView();
-            glm::mat4 projection = camera.getProjection();
-
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glBindVertexArray(VAO);
+
+            const glm::mat4 view = camera.getView();
+            glm::mat4 projection = camera.getProjection();
 
             light.drawLight(view, projection);
             for (auto group: groups) {
@@ -111,17 +110,17 @@ public:
                           glm::vec3(0.5f, 0.8f, 0.2f));
 
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-            glfwSwapInterval(1);
+            Window::renderCommonWindow(io);
 
-            const float currentFrame = (float) glfwGetTime();
+            const auto currentFrame = static_cast<float>(glfwGetTime());
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glfwSwapBuffers(window);
+            glfwSwapInterval(1);
         }
+
+        Window::destoryCommonWindow();
     }
 };
 

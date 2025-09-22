@@ -13,38 +13,43 @@ public:
     Camera &camera;
     Cursor(Camera &camera) : camera(camera) {}
     void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-        (void) window;
-        if (firstMouse) {
+        if (not Window::isAccessingUI) {
+            (void) window;
+            if (firstMouse) {
+                lastX = static_cast<float>(xpos);
+                lastY = static_cast<float>(ypos);
+                firstMouse = false;
+            }
+            xoffset = static_cast<float>(xpos) - lastX;
+            yoffset = lastY - static_cast<float>(ypos);
+            if (fabs(xoffset) > moveThreshold ||
+                fabs(yoffset) > moveThreshold) {
+                yoffset = 0;
+                xoffset = 0;
+            }
             lastX = static_cast<float>(xpos);
             lastY = static_cast<float>(ypos);
-            firstMouse = false;
-        }
-        xoffset = static_cast<float>(xpos) - lastX;
-        yoffset = lastY - static_cast<float>(ypos);
-        if (fabs(xoffset) > moveThreshold || fabs(yoffset) > moveThreshold) {
-            yoffset = 0;
-            xoffset = 0;
-        }
-        lastX = static_cast<float>(xpos);
-        lastY = static_cast<float>(ypos);
 
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
+            xoffset *= sensitivity;
+            yoffset *= sensitivity;
 
-        camera.lookAround(yoffset, xoffset);
+            camera.lookAround(yoffset, xoffset);
+        }
     }
 
     void scroll_callback(GLFWwindow *window, const double xoffset_param,
                          const double yoffset_param) {
-        (void) window;
-        (void) xoffset_param;
-        (void) yoffset_param;
-        zoom -= static_cast<float>(yoffset_param);
-        if (zoom < 1.0f)
-            zoom = 1.0f;
-        if (zoom > 45.0f)
-            zoom = 45.0f;
-        camera.setFov(zoom);
+        if (not Window::isAccessingUI) {
+            (void) window;
+            (void) xoffset_param;
+            (void) yoffset_param;
+            zoom -= static_cast<float>(yoffset_param);
+            if (zoom < 1.0f)
+                zoom = 1.0f;
+            if (zoom > 45.0f)
+                zoom = 45.0f;
+            camera.setFov(zoom);
+        }
     }
     void window_focus_callback(GLFWwindow *window, int focused) {
         if (focused) {

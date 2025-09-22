@@ -23,3 +23,12 @@ loc count:
 ```shell
  git ls-files | cloc --list-file=- --exclude-dir=assets,deps
 ```
+
+
+**Important**
+
+Vcpkg doesn't have imgui@1.92.3, it only has 1.91.9. 
+I'm currently using vcpkg overlay to solve the problem.
+
+If you are using clion, make sure you have VCPKG_OVERLAY_PORTS in your cmake environment.
+eg: `VCPKG_OVERLAY_PORTS=/home/<username>/vcpkg/vcpkg-overlays`
