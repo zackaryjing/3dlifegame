@@ -53,7 +53,7 @@ public:
     }
     void window_focus_callback(GLFWwindow *window, int focused) {
         if (focused) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            Window::updateCursorState(window);
         }
     }
 };
