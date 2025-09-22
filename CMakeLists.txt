@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.26)
+if (NOT DEFINED VCPKG_TARGET_TRIPLET)
+    set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "vcpkg triplet")
+endif ()
 project(LifeGmae)
 
 
