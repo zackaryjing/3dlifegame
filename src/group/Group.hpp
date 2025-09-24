@@ -17,10 +17,11 @@ protected:
 
     static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
-    bool modelTurning = false;
     unsigned int groupVAO;
 
 public:
+    string groupName = "";
+    bool modelTurning = false;
     vector<shared_ptr<Model>> modelGroup;
     Group() :
         groupShader(vertex_shader, fragment_shader, ShaderParamType::PATH,
@@ -75,6 +76,7 @@ public:
 
     static inline Group getDemoGroup(int n) {
         Group group;
+        group.groupName = "DemoGroup";
         group.modelTurning = false;
         for (int i = 0; i < n; ++i) {
             group.modelGroup.emplace_back(make_shared<Model>(Model::getCube()));

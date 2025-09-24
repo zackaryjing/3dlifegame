@@ -52,9 +52,8 @@ public:
         }
     }
     void window_focus_callback(GLFWwindow *window, int focused) {
-        if (focused) {
-            Window::updateCursorState(window);
-        }
+        (void) focused;
+        Window::updateCursorState(window);
     }
 };
 

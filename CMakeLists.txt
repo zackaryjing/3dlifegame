@@ -68,3 +68,6 @@ target_link_libraries(LifeGameFontTest PUBLIC common)
 
 add_executable(LifeGameImGuiTest src/tests/TestImGui.cpp)
 target_link_libraries(LifeGameImGuiTest PUBLIC common)
+
+add_executable(LifeGameRasterTest src/tests/TestRaster.cpp)
+target_link_libraries(LifeGameRasterTest PUBLIC common)

@@ -8,6 +8,7 @@
 #include "ui/CursorInput.hpp"
 #include "ui/Window.hpp"
 
+
 using namespace std;
 
 static void glfw_error_callback(int error, const char *description) {
@@ -17,7 +18,7 @@ static void glfw_error_callback(int error, const char *description) {
 int main() {
     glfwSetErrorCallback(glfw_error_callback);
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -31,7 +32,9 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
+    Window::updateCursorState(window);
 
 
     if (not gladLoadGLLoader(
@@ -40,6 +43,9 @@ int main() {
         return -1;
     }
 
+    cout << "GL version: " << glGetString(GL_VERSION) << endl;
+    cout << "GL renderer: " << glGetString(GL_RENDERER) << endl;
+
     // order matters, have to use this after gladLoadGLLoader
     int flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -47,10 +53,15 @@ int main() {
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(glDebugOutput, nullptr);
-        // can be used to control the debug message.
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
-                              nullptr, GL_TRUE);
+        if (glDebugMessageCallback) {
+            glDebugMessageCallback(glDebugOutput, nullptr);
+            // can be used to control the debug message.
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
+                                  nullptr, GL_TRUE);
+        } else {
+            cerr << "ERROR::glDebugMessageCallback not available on this driver"
+                 << endl;
+        }
     }
 
     // enable alpha blend to render text
@@ -63,7 +74,6 @@ int main() {
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     cout << "Maximum number of vertex attributes supported: " << nrAttributes
          << endl;
-
 
 
     Scene scene(window);

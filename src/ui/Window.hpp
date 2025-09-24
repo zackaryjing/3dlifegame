@@ -52,12 +52,9 @@ public:
         // style.FontScaleDpi = 1.2f;
     }
 
-    static void renderCommonWindow(const ImGuiIO &io) {
+    static void addCommonWidget(const ImGuiIO &io) {
         if (isAccessingUI) {
 
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
             if (show_demo_window) {
                 ImGui::ShowDemoWindow(&show_demo_window);
             }
@@ -86,8 +83,6 @@ public:
             //     if (ImGui::Button("Button"))
             //         counter++;
             //     ImGui::SameLine();
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         }
     }
     static void destoryCommonWindow() {

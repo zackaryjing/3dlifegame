@@ -25,7 +25,7 @@ public:
     string lighting_vshader = GLSL_DIR "LightingShader.vs";
     Shader lightShader = {};
     shared_ptr<Model> lightModel;
-    const bool lightTurning = true;
+    bool lightTurning = true;
 
     void propertySpin();
     void setCommonUniform(glm::mat4 view, glm::mat4 projection) {

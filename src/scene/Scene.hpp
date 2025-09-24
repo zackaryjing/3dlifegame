@@ -61,6 +61,17 @@ public:
                            camera.pitch, camera.fov);
     }
 
+    void addWidget() {
+        if (Window::isAccessingUI) {
+            ImGui::Begin("Scene Window");
+            ImGui::Checkbox("LightSpinning", &light.lightTurning);
+            for (auto &group: groups) {
+                ImGui::Checkbox("ModelTurning", &group.modelTurning);
+            }
+            ImGui::End();
+        }
+    }
+
     void render() {
         glEnable(GL_DEPTH_TEST);
         unsigned int texture = create_brick_wall_texture();
@@ -110,7 +121,13 @@ public:
                           glm::vec3(0.5f, 0.8f, 0.2f));
 
 
-            Window::renderCommonWindow(io);
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            Window::addCommonWidget(io);
+            addWidget();
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
             const auto currentFrame = static_cast<float>(glfwGetTime());
             deltaTime = currentFrame - lastFrame;
