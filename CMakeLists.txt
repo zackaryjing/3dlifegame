@@ -34,6 +34,11 @@ add_library(common_headers INTERFACE
         src/ui/KeyboardInput.hpp
         src/geometry/Icosahedron.hpp
         src/geometry/Sphere.hpp
+        src/raster/vec3.hpp
+        src/raster/ray.hpp
+        src/raster/hitable.hpp
+        src/raster/sphere.hpp
+        src/raster/bmp.hpp
 )
 target_link_libraries(common_headers INTERFACE Freetype::Freetype)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)
