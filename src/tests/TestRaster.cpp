@@ -1,5 +1,4 @@
 #include <cfloat>
-#include <chrono>
 #include <fstream>
 #include <glm/detail/qualifier.hpp>
 #include <iostream>
@@ -8,35 +7,32 @@
 
 #include "raster/bmp.hpp"
 #include "raster/camera.hpp"
-#include "raster/hitable.hpp"
 #include "raster/hitable_list.hpp"
+#include "raster/material.hpp"
 #include "raster/ray.hpp"
 #include "raster/sphere.hpp"
+#include "raster/utils.hpp"
+
 using std::cout;
 using std::endl;
 using std::ofstream;
 using std::sqrt;
 using std::vector;
-using std::chrono::system_clock;
 
-unsigned seed = system_clock::now().time_since_epoch().count();
-std::mt19937 generator(seed);
-std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-vec3 random_in_unit_sphere() {
-    vec3 p;
-    do {
-        p = 2.0 * vec3(dist(generator), dist(generator), dist(generator)) -
-            vec3(1, 1, 1);
-    } while (dot(p, p) >= 1.0);
-    return p;
-}
-
-vec3 color(const ray &r, hitable *world) {
+vec3 color(const ray &r, hitable *world, int depth) {
     hit_record rec;
-    if (world->hit(r, 0.0, FLT_MAX, rec)) {
-        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        return 0.5 * color(ray(rec.p, target - rec.p), world);
+    if (world->hit(r, 0.001, FLT_MAX, rec)) {
+        ray scattered;
+        vec3 attenuation;
+        if (depth < 50 &&
+            rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * color(scattered, world, depth + 1);
+        } else {
+            return vec3(0, 0, 0);
+        }
+        // vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+        // return 0.5 * color(ray(rec.p, target - rec.p), world);
     } else {
         vec3 unit_direction = unit(r.direction());
         float t = 0.5 * (unit_direction.y() + 1.0f);
@@ -66,10 +62,17 @@ int main() {
 
     vector<uint8_t> row(rowStride);
 
-    hitable *list[2];
-    list[0] = new sphere(vec3(0, 0, -1), 0.5);
-    list[1] = new sphere(vec3(0, -100.5, -1), 100);
-    hitable *world = new hitable_list(list, 2);
+    constexpr int cnt = 5;
+
+    hitable *list[cnt];
+    list[0] = new sphere(vec3(0, 0, -1), 0.5,
+                         new lambertian(vec3(0.1, 0.2, 0.5)));
+    list[1] = new sphere(vec3(0, -100.5, -1), 100,
+                         new lambertian(vec3(0.8, 0.8, 0.0)));
+    list[2] = new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2)));
+    list[3] = new sphere(vec3(-1, 0, -1), 0.5, new dielectric(1.5));
+    list[4] = new sphere(vec3(-1, 0, -1), -0.45, new dielectric(1.5));
+    hitable *world = new hitable_list(list, cnt);
 
     camera cam;
 
@@ -77,11 +80,13 @@ int main() {
         for (int i = 0; i < nx; ++i) {
             vec3 col(0, 0, 0);
             for (int s = 0; s < ns; s++) {
-                float u = (i + dist(generator)) / static_cast<float>(nx);
-                float v = (j + dist(generator)) / static_cast<float>(ny);
+                float u = (static_cast<float>(i) + Rand::gen_float()) /
+                          static_cast<float>(nx);
+                float v = (static_cast<float>(j) + Rand::gen_float()) /
+                          static_cast<float>(ny);
                 ray r = cam.get_ray(u, v);
                 // vec3 p = r.point_at_parameter(2.0);
-                col += color(r, world);
+                col += color(r, world, 0);
             }
 
             col /= static_cast<float>(ns);

@@ -39,6 +39,8 @@ add_library(common_headers INTERFACE
         src/raster/hitable.hpp
         src/raster/sphere.hpp
         src/raster/bmp.hpp
+        src/raster/material.hpp
+        src/raster/utils.hpp
 )
 target_link_libraries(common_headers INTERFACE Freetype::Freetype)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)

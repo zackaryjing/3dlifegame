@@ -1,9 +1,7 @@
 #pragma once
 
-#include <io.h>
 
-
-#include "hitable.hpp"
+#include "raster/hitable.hpp"
 
 class hitable_list : public hitable {
 public:
