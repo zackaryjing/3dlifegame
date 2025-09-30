@@ -5,6 +5,14 @@ lib installation:
 vcpkg install glfw3
 vcpkg install glm
 vcpkg install glad
+vcpkg install freetype
+vcpkg install imgui
+```
+
+or using vcpkg.json: 
+
+```shell
+vcpkg install .
 ```
 
 

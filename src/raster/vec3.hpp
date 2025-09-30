@@ -79,9 +79,11 @@ public:
         return v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2];
     }
     friend vec3 cross(const vec3 &v1, const vec3 &v2) {
-        return {v1.e[0] * v2[1] - v1.e[1] * v2[0],
+        return {
                 v1.e[1] * v2[2] - v1.e[2] * v2[1],
-                v1.e[2] * v2[0] - v1.e[0] * v2[2]};
+                v1.e[2] * v2[0] - v1.e[0] * v2[2],
+                v1.e[0] * v2[1] - v1.e[1] * v2[0],
+        };
     }
     friend vec3 unit(const vec3 &v) { return v / v.length(); }
 
@@ -89,6 +91,10 @@ public:
 
     friend vec3 operator*(const float t, const vec3 v) { return v * t; }
 
+    friend std::ostream &operator<<(std::ostream &os, const vec3 &v) {
+        os << v.x() << ", " << v.y() << ", " << v.z();
+        return os;
+    }
 
     [[nodiscard]] float length() const {
         return std::sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
@@ -97,5 +103,3 @@ public:
         return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
     }
 };
-
-

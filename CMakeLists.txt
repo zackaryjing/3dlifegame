@@ -76,5 +76,7 @@ target_link_libraries(LifeGameFontTest PUBLIC common)
 add_executable(LifeGameImGuiTest src/tests/TestImGui.cpp)
 target_link_libraries(LifeGameImGuiTest PUBLIC common)
 
+find_package(OpenMP REQUIRED)
 add_executable(LifeGameRasterTest src/tests/TestRaster.cpp)
-target_link_libraries(LifeGameRasterTest PUBLIC common)
+target_link_libraries(LifeGameRasterTest PUBLIC common PRIVATE OpenMP::OpenMP_CXX)
+target_compile_options(LifeGameRasterTest PRIVATE -fopenmp)
