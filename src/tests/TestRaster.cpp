@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "raster/bmp.hpp"
+#include "raster/bvh_node.hpp"
 #include "raster/camera.hpp"
 #include "raster/hitable_list.hpp"
 #include "raster/material.hpp"
@@ -32,8 +33,6 @@ vec3 color(const ray &r, hitable *world, int depth) {
         } else {
             return vec3(0, 0, 0);
         }
-        // vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        // return 0.5 * color(ray(rec.p, target - rec.p), world);
     } else {
         vec3 unit_direction = unit(r.direction());
         float t = 0.5 * (unit_direction.y() + 1.0f);
@@ -80,7 +79,8 @@ hitable *random_scene() {
                            new lambertian(vec3(0.4, 0.2, 0.1)));
     list[i++] =
             new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
-    return new hitable_list(list, i);
+    return new bvh_node(list, i, 0.0, 1.0);
+    // return new hitable_list(list, i);
 }
 
 void test_scene() {
@@ -105,11 +105,13 @@ void test_scene() {
 }
 
 
+// out2 22.38
+// out3 7.54
 int main() {
     int nx = 150 * 1.0;
     int ny = 100 * 1.0;
     int ns = 30;
-    ofstream file("./out2.bmp", std::ios::binary);
+    ofstream file("./out3.bmp", std::ios::binary);
     int rowStride = ((nx * 3 + 3) & (~3));
 
 
@@ -132,7 +134,7 @@ int main() {
     vec3 lookat(0.0, 0.0, 0.0);
     float aperture = 0.0;
     float dist_to_focus = (lookfrom - lookat).length() * 0.9f;
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 15,
+    camera cam(lookfrom, lookat, vec3(0, 1, 0), 25,
                static_cast<float>(nx) / static_cast<float>(ny), aperture,
                dist_to_focus, 0.0, 1.0);
     int done = 0;

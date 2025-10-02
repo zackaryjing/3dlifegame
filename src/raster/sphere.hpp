@@ -1,14 +1,16 @@
 #pragma once
 
+#include "raster/aabb.hpp"
 #include "raster/hitable.hpp"
 
-class sphere : public hitable {
+class sphere final : public hitable {
 public:
-    sphere() {};
+    sphere() = default;
     sphere(vec3 cen, float r, material *mat_ptr) :
         center(cen), radius(r), mat_ptr(mat_ptr) {};
     virtual bool hit(const ray &r, float tmin, float tmax,
                      hit_record &rec) const;
+    bool bounding_box(float t0, float t1, aabb &box) const override;
     vec3 center;
     float radius;
     material *mat_ptr;
@@ -44,15 +46,25 @@ inline bool sphere::hit(const ray &r, float t_min, float t_max,
 }
 
 
+inline bool sphere::bounding_box(float t0, float t1, aabb &box) const {
+    (void) t0;
+    (void) t1;
+    box = aabb(center - vec3(radius, radius, radius),
+               center + vec3(radius, radius, radius));
+    return true;
+}
+
+
 class moving_sphere : public hitable {
 public:
     moving_sphere() = default;
-    moving_sphere(const vec3 cen0, const vec3 cen1, const float t0, const float t1, const float r,
-                  material *m) :
+    moving_sphere(const vec3 cen0, const vec3 cen1, const float t0,
+                  const float t1, const float r, material *m) :
         center0(cen0), center1(cen1), time0(t0), time1(t1), radius(r),
         mat_ptr(m) {};
     virtual bool hit(const ray &r, float tmin, float tmax,
-                     hit_record &rec) const;
+                     hit_record &rec) const override;
+    virtual bool bounding_box(float t0, float t1, aabb &box) const override;
     vec3 center(float time) const;
     vec3 center0, center1;
     float time0, time1;
@@ -64,11 +76,13 @@ inline vec3 moving_sphere::center(float time) const {
     return center0 + ((time - time0) / (time1 - time0)) * (center1 - center0);
 }
 
-inline bool moving_sphere::hit(const ray& r,float t_min,float t_max,hit_record& rec) const {
+
+inline bool moving_sphere::hit(const ray &r, float t_min, float t_max,
+                               hit_record &rec) const {
     vec3 oc = r.origin() - center(r.time());
     float a = dot(r.direction(), r.direction());
-    float b = dot(oc,r.direction());
-    float c = dot(oc,oc) - radius * radius;
+    float b = dot(oc, r.direction());
+    float c = dot(oc, oc) - radius * radius;
     float discriminant = b * b - a * c;
     if (discriminant > 0) {
         float temp = (-b - sqrt(discriminant)) / a;
@@ -89,4 +103,14 @@ inline bool moving_sphere::hit(const ray& r,float t_min,float t_max,hit_record& 
         }
     }
     return false;
+}
+
+inline bool moving_sphere::bounding_box(const float t0, const float t1,
+                                        aabb &box) const {
+    const auto box0 = aabb(center(t0) - vec3(radius, radius, radius),
+                           center(t0) + vec3(radius, radius, radius));
+    const auto box1 = aabb(center(t1) - vec3(radius, radius, radius),
+                           center(t1) + vec3(radius, radius, radius));
+    box = surrounding_box(box0, box1);
+    return true;
 }
