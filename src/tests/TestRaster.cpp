@@ -54,8 +54,10 @@ hitable *random_scene() {
                         b + 0.9 * Rand::gen_float());
             if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
                 if (choose_mat < 0.8) {
-                    list[i++] = new sphere(
-                            center, 0.2,
+                    list[i++] = new moving_sphere(
+                            center,
+                            center + vec3(0, 0.5 * Rand::gen_float(), 0), 0.0,
+                            1.0, 0.2,
                             new lambertian(vec3(
                                     Rand::gen_float() * Rand::gen_float(),
                                     Rand::gen_float() * Rand::gen_float(),
@@ -99,14 +101,14 @@ void test_scene() {
     hitable *world = new hitable_list(list, cnt);
 
     camera cam(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0),
-               90, 2.0, 0.0, 1.0);
+               90, 2.0, 0.0, 1.0, 0.0, 1.0);
 }
 
 
 int main() {
-    int nx = 150 * 4.0;
-    int ny = 100 * 4.0;
-    int ns = 120;
+    int nx = 150 * 1.0;
+    int ny = 100 * 1.0;
+    int ns = 30;
     ofstream file("./out2.bmp", std::ios::binary);
     int rowStride = ((nx * 3 + 3) & (~3));
 
@@ -126,13 +128,13 @@ int main() {
 
     hitable *world = random_scene();
 
-    vec3 lookfrom(18, 1.7, 4.0);
-    vec3 lookat(-4, 0.0, -1);
-    float aperture = 0.01;
-    float dist_to_focus = (lookfrom - lookat).length() * 1.0f;
+    vec3 lookfrom(13, 2, 3.0);
+    vec3 lookat(0.0, 0.0, 0.0);
+    float aperture = 0.0;
+    float dist_to_focus = (lookfrom - lookat).length() * 0.9f;
     camera cam(lookfrom, lookat, vec3(0, 1, 0), 15,
                static_cast<float>(nx) / static_cast<float>(ny), aperture,
-               dist_to_focus);
+               dist_to_focus, 0.0, 1.0);
     int done = 0;
 
 #pragma omp parallel for collapse(2)
