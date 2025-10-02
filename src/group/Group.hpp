@@ -33,7 +33,6 @@ public:
 
     void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light,
                           glm::vec3 cameraPos) {
-        groupShader.setInt("ourTexture", 0);
         groupShader.setMatrix4("view", view);
         groupShader.setMatrix4("projection", projection);
         groupShader.setVec3("viewPos", cameraPos);
@@ -46,20 +45,20 @@ public:
 
     void setModelUniform(shared_ptr<Model> model) {
         groupShader.setVec3("material.color", model->material.color);
-        groupShader.setVec3("material.ambient", model->material.ambient);
-        groupShader.setVec3("material.diffuse", model->material.diffuse);
         groupShader.setVec3("material.specular", model->material.specular);
         groupShader.setFloat("material.shininess", model->material.shininess);
+        groupShader.setBool("material.useTexture", model->use_texture);
+        groupShader.setInt("material.texDiffuse", 1);
     }
 
-    void drawGroups(glm::mat4 view, glm::mat4 projection, Light &light,
-                    glm::vec3 cameraPos) {
+    void drawGroups(const glm::mat4 &view, const glm::mat4 &projection,
+                    Light &light, const glm::vec3 cameraPos) {
         groupShader.use();
         setCommonUniform(view, projection, light, cameraPos);
-        for (auto model: modelGroup) {
+        for (const auto &model: modelGroup) {
             setModelUniform(model);
 
-            auto modelMat = glm::mat4(1.0f);
+            glm::mat4 modelMat;
             if (modelTurning) {
                 modelMat = glm::rotate(model->modelMat,
                                        static_cast<float>(glfwGetTime()) *
@@ -69,6 +68,10 @@ public:
                 modelMat = model->modelMat;
             }
             groupShader.setMatrix4("model", modelMat);
+            if (model->use_texture) {
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, model->diffuse_textureID);
+            }
             glDrawArrays(GL_TRIANGLES, model->dataPos.first,
                          model->dataPos.second);
         }
@@ -86,6 +89,8 @@ public:
         // Icosahedron icosahedron(1.0);
         Sphere sphere(1.0);
         group.modelGroup.push_back(make_shared<Model>(sphere.toModel()));
+        // group.modelGroup.push_back(make_shared<Model>(Model::getWoodenBox()));
+        group.modelGroup.push_back(make_shared<Model>(Model::getTriangle()));
         // group.modelGroup.push_back(make_shared<Model>(icosahedron.toModel()));
 
         // string model_dir = MODEL_DIR "arrow.obj";

@@ -16,7 +16,9 @@ inline vec3 random_in_unit_disk() {
 class camera {
 public:
     camera(vec3 lookfrom, vec3 lookat, vec3 vup, float vfov, float aspect,
-           float aperture, float focus_dist) {
+           float aperture, float focus_dist, float t0, float t1) {
+        time0 = t0;
+        time1 = t1;
         lens_radius = aperture / 2;
         const float theta = vfov * static_cast<float>(M_PI) / 180;
         const float half_height = std::tan(theta / 2);
@@ -34,10 +36,15 @@ public:
     ray get_ray(const float s, const float t) const {
         vec3 rd = lens_radius * random_in_unit_disk();
         vec3 offset = u * rd.x() + v * rd.y();
-        return {origin + offset, lower_left_corner + s * horizontal +
-                                         t * vertical - origin - offset};
+        float time = time0 + Rand::gen_float() * (time1 - time0);
+        return {origin + offset,
+                lower_left_corner + s * horizontal + t * vertical - origin -
+                        offset,
+                time};
     }
 
+    float time0;
+    float time1;
     vec3 origin;
     vec3 lower_left_corner;
     vec3 horizontal;

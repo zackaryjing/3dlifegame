@@ -5,11 +5,14 @@ class ray {
 public:
     vec3 _origin;
     vec3 _dir;
+    float _time;
     ray() = default;
-    ray(const vec3 &origin, const vec3 &dir) {
+    ray(const vec3 &origin, const vec3 &dir, float ti = 0.0) {
         _origin = origin;
         _dir = dir;
+        _time = ti;
     };
+    float time() const { return _time; }
     [[nodiscard]] vec3 origin() const { return _origin; };
     [[nodiscard]] vec3 direction() const { return _dir; };
     [[nodiscard]] vec3 point_at_parameter(float t) const {

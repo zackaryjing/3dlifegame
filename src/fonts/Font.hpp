@@ -39,31 +39,34 @@ public:
 
         fontShader.use();
         fontShader.setVec3("textColor", color);
-        glm::mat4 projection = glm::ortho(0.0f, (float) Window::width, 0.0f,
-                                          (float) Window::height);
+        glm::mat4 projection =
+                glm::ortho(0.0f, static_cast<float>(Window::width), 0.0f,
+                           static_cast<float>(Window::height));
         fontShader.setMatrix4("projection", projection);
+        fontShader.setInt("text", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(VAO);
 
         string::const_iterator c;
         for (c = text.begin(); c != text.end(); ++c) {
-            Character ch = characters[*c];
-            float xpos = x + (float) ch.bearing.x * scale;
-            float ypos = y - (float) (ch.Size.y - ch.bearing.y) * scale;
-            float w = (float) ch.Size.x * scale;
-            float h = (float) ch.Size.y * scale;
-            float vertices[6][4] = {{xpos, ypos + h, 0.0f, 0.0f},
-                                    {xpos, ypos, 0.0f, 1.0f},
-                                    {xpos + w, ypos, 1.0f, 1.0f},
-                                    {xpos, ypos + h, 0.0f, 0.0f},
-                                    {xpos + w, ypos, 1.0f, 1.0f},
-                                    {xpos + w, ypos + h, 1.0f, 0.0f}};
-            glBindTexture(GL_TEXTURE_2D, ch.textureID);
+            auto [textureID, Size, bearing, advance] = characters[*c];
+            const float xpos = x + static_cast<float>(bearing.x) * scale;
+            const float ypos =
+                    y - static_cast<float>(Size.y - bearing.y) * scale;
+            const float w = static_cast<float>(Size.x) * scale;
+            const float h = static_cast<float>(Size.y) * scale;
+            const float vertices[6][4] = {{xpos, ypos + h, 0.0f, 0.0f},
+                                          {xpos, ypos, 0.0f, 1.0f},
+                                          {xpos + w, ypos, 1.0f, 1.0f},
+                                          {xpos, ypos + h, 0.0f, 0.0f},
+                                          {xpos + w, ypos, 1.0f, 1.0f},
+                                          {xpos + w, ypos + h, 1.0f, 0.0f}};
+            glBindTexture(GL_TEXTURE_2D, textureID);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glDrawArrays(GL_TRIANGLES, 0, 6);
-            x += (float) (ch.advance >> 6) * scale;
+            x += static_cast<float>(advance >> 6) * scale;
         }
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);

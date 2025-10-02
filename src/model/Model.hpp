@@ -8,6 +8,7 @@
 #include <memory>
 #include <random>
 #include "model/Material.hpp"
+#include "texture/TextureLoader.hpp"
 #include "utils/Type.hpp"
 using std::copy_n;
 using std::make_pair;
@@ -35,6 +36,9 @@ public:
     glm::mat4 modelMat = {};
     /* data position in VAO */
     pair<int, int> dataPos;
+    bool use_texture = false;
+    unsigned int diffuse_textureID = 0;
+
 
     void setDataPos(int start, int cnt) { dataPos = make_pair(start, cnt); }
 
@@ -53,8 +57,12 @@ public:
 
     static Model getCube();
 
+    static Model getWoodenBox();
+
     static Model getTriangle();
 };
+
+
 inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
                              const ModelNormalGenType model_normal_gen =
                                      ModelNormalGenType::FACEBASED) {
@@ -91,6 +99,7 @@ inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
 
     return genModel(fullVertices, fullNormals, fullTexture, "");
 }
+
 inline Model Model::genModel(VFVec3 vertices, VFVec3 normals,
                              VFVec2 texture_coord, string material_name) {
     Model instance;
@@ -189,12 +198,22 @@ inline Model Model::getCube() {
 
     return instance;
 }
+
+
+inline Model Model::getWoodenBox() {
+    auto baseCube = getCube();
+    baseCube.use_texture = true;
+    baseCube.diffuse_textureID = create_wooden_box_texture();
+    return baseCube;
+}
+
+
 inline Model Model::getTriangle() {
     Model instance;
     const vector vertices_data = {
             -0.5f, -0.5f, -0.5f, //
             0.5f,  -0.5f, -0.5f, //
-            0.0f,  0.5f,  -0.5f,
+            0.5f,  0.5f,  -0.5f,
     };
     const vector texture_coord_data = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f};
     const vector normals_data = {
@@ -205,8 +224,10 @@ inline Model Model::getTriangle() {
     instance.vertices = vertices_data;
     instance.texture_coord = texture_coord_data;
     instance.normals = normals_data;
-    instance.position = glm::vec3(0.0f, 0.0f, -0.5f);
-    instance.modelMat = glm::mat4(1.0f);
+    instance.position = glm::vec3(0.0f, 2.0f, -2.0f);
+    instance.modelMat = glm::translate(glm::mat4(1.0f), instance.position);
+    instance.use_texture = true;
+    instance.diffuse_textureID = create_wooden_box_texture();
 
     return instance;
 }

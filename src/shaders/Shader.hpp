@@ -4,7 +4,7 @@
 #include <string>
 
 #ifndef GLSL_DIR
-#define GLSL_DIR "../src/shaders/" // fallback: 编辑器静态分析用
+#define GLSL_DIR "../src/glsl/" // fallback: 编辑器静态分析用
 #endif
 
 using std::cerr;

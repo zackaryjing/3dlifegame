@@ -57,7 +57,7 @@ add_executable(LifeGameCubeTest
         src/model/CubeEBO.hpp)
 target_link_libraries(LifeGameCubeTest PUBLIC common)
 
-add_definitions(-DGLSL_DIR="${CMAKE_SOURCE_DIR}/src/shaders/" -DGLM_ENABLE_EXPERIMENTAL)
+add_definitions(-DGLSL_DIR="${CMAKE_SOURCE_DIR}/src/glsl/" -DGLM_ENABLE_EXPERIMENTAL)
 add_definitions(-DTEXTURE_DIR="${CMAKE_SOURCE_DIR}/assets/texture/")
 add_definitions(-DMODEL_DIR="${CMAKE_SOURCE_DIR}/assets/models/")
 add_definitions(-DFONT_DIR="${CMAKE_SOURCE_DIR}/assets/fonts/")
