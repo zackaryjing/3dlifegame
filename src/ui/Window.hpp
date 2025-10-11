@@ -61,16 +61,6 @@ public:
 
             {
                 ImGui::Begin("Config Window");
-                if (ImGui::TreeNode("Single-Select")) {
-                    static int selected = -1;
-                    for (int n = 0; n < 5; n++) {
-                        char buf[32];
-                        sprintf(buf, "Object %d", n);
-                        if (ImGui::Selectable(buf, selected == n))
-                            selected = n;
-                    }
-                    ImGui::TreePop();
-                }
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                             1000.0f / io.Framerate, io.Framerate);
                 ImGui::End();
@@ -92,7 +82,7 @@ public:
     }
 };
 
-static void framebuffer_size_callback(GLFWwindow *window, int width,
+inline void framebuffer_size_callback(GLFWwindow *window, int width,
                                       int height) {
     (void) window;
     glViewport(0, 0, width, height);

@@ -2,10 +2,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 #include <iostream>
-#include "scene/Scene.hpp"
-#include "ui/CursorInput.hpp"
+
+#include "debug/Error.hpp"
+#include "scene/SceneManager.hpp"
 #include "ui/Window.hpp"
 
 
@@ -75,9 +75,8 @@ int main() {
     cout << "Maximum number of vertex attributes supported: " << nrAttributes
          << endl;
 
-
-    Scene scene(window);
-    scene.render();
+    SceneManager::init(window);
+    SceneManager::render();
 
     glfwDestroyWindow(window);
     glfwTerminate();

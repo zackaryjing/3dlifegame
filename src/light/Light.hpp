@@ -26,8 +26,18 @@ public:
     Shader lightShader = {};
     shared_ptr<Model> lightModel;
     bool lightTurning = true;
+    float pauseTime = static_cast<float>(glfwGetTime());
+    float startTime = 0.0f;
 
-    void propertySpin();
+    void resetTime() {
+        if (not lightTurning) {
+            pauseTime += glfwGetTime() - startTime;
+        } else {
+            startTime = static_cast<float>(glfwGetTime());
+        }
+    }
+
+    void propertySpin(float curTime);
     void setCommonUniform(glm::mat4 view, glm::mat4 projection) {
         lightShader.setInt("ourTexture", 0);
         lightShader.setMatrix4("view", view);
@@ -43,9 +53,13 @@ public:
     }
 
     void drawLight(glm::mat4 view, glm::mat4 projection) {
+        float curTime;
         if (lightTurning) {
-            propertySpin();
+            curTime = static_cast<float>(glfwGetTime()) - startTime + pauseTime;
+        } else {
+            curTime = pauseTime;
         }
+        propertySpin(curTime);
         lightShader.use();
         setCommonUniform(view, projection);
         setLightUniform();
@@ -58,7 +72,7 @@ public:
     }
 };
 
-Light::Light() {
+inline Light::Light() {
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
     ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -71,17 +85,16 @@ Light::Light() {
     lightModel = make_shared<Model>(Model::getCube());
 }
 
-void Light::propertySpin() {
+inline void Light::propertySpin(float curTime) {
 
-    lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) * 0.25f + 0.75;
-    lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) * 0.25f + 0.75;
-    lightColor.y = static_cast<float>(sin(glfwGetTime() * 1.3f)) * 0.25f + 0.75;
+    lightColor.x = sin(curTime * 2.0f) * 0.25f + 0.75;
+    lightColor.y = sin(curTime * 0.7f) * 0.25f + 0.75;
+    lightColor.y = sin(curTime * 1.3f) * 0.25f + 0.75;
 
-    position = glm::vec3(
-            glm::rotate(glm::mat4(1.0f),
-                        static_cast<float>(glfwGetTime()) * glm::radians(50.0f),
-                        glm::vec3(0.0f, 0.0f, 1.0f)) *
-            glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+    position = glm::vec3(glm::rotate(glm::mat4(1.0f),
+                                     curTime * glm::radians(50.0f),
+                                     glm::vec3(0.0f, 0.0f, 1.0f)) *
+                         glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
 
     diffuseColor = lightColor * glm::vec3(0.7f);
     ambientColor = lightColor * glm::vec3(0.2f);

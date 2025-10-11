@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.26)
 if (NOT DEFINED VCPKG_TARGET_TRIPLET)
-    set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "vcpkg triplet")
+    if (WIN32)
+        set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "vcpkg triplet")
+    elseif (UNIX)
+        set(VCPKG_TARGET_TRIPLET "x64-linux" CACHE STRING "vcpkg triplet")
+    else ()
+        message(FATAL_ERROR "Unsupported platform")
+    endif ()
 endif ()
-project(LifeGmae)
+project(LifeGame)
 
 
 set(CMAKE_CXX_STANDARD 26)
@@ -21,7 +27,6 @@ find_package(imgui CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
 add_library(common_headers INTERFACE
-        deps/stb/stb_image.h
         src/model/ModelLoader.hpp
         src/ui/Window.hpp
         src/utils/Node.hpp
@@ -34,6 +39,8 @@ add_library(common_headers INTERFACE
         src/ui/KeyboardInput.hpp
         src/geometry/Icosahedron.hpp
         src/geometry/Sphere.hpp
+        src/scene/DemoScene.hpp
+        src/scene/SceneManager.hpp
         src/raster/vec3.hpp
         src/raster/ray.hpp
         src/raster/hitable.hpp
@@ -43,14 +50,33 @@ add_library(common_headers INTERFACE
         src/raster/utils.hpp
         src/raster/aabb.hpp
         src/raster/bvh_node.hpp
+        src/raster/texture.hpp
+        src/raster/perlin.hpp
+        src/raster/scene.hpp
 )
-target_link_libraries(common_headers INTERFACE Freetype::Freetype)
+
+set(STB_INCLUDE_DIR "${VCPKG_INSTALLED_DIR}/include")
+
+target_link_libraries(common_headers INTERFACE)
 target_include_directories(common_headers INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 add_library(common INTERFACE)
-target_link_libraries(common INTERFACE glfw glm::glm glad::glad OpenGL::GL imgui::imgui common_headers)
+target_link_libraries(common INTERFACE
+        glfw
+        glm::glm
+        glad::glad
+        OpenGL::GL
+        imgui::imgui
+        Freetype::Freetype
+        common_headers
+)
+target_include_directories(common INTERFACE ${STB_INCLUDE_DIR})
 
-add_executable(LifeGame src/main.cpp src/shaders/Shader.cpp ./deps/stb/stb_image.h)
+add_executable(LifeGame
+        src/main.cpp
+        src/shaders/Shader.cpp
+        src/scene/DemoScene.cpp
+        src/texture/stb_image_impl.cpp)
 target_link_libraries(LifeGame PUBLIC common)
 target_compile_options(LifeGame PRIVATE -Werror)
 

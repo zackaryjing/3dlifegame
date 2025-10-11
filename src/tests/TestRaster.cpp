@@ -7,12 +7,10 @@
 #include <vector>
 
 #include "raster/bmp.hpp"
-#include "raster/bvh_node.hpp"
 #include "raster/camera.hpp"
-#include "raster/hitable_list.hpp"
 #include "raster/material.hpp"
 #include "raster/ray.hpp"
-#include "raster/sphere.hpp"
+#include "raster/scene.hpp"
 #include "raster/utils.hpp"
 
 using std::cout;
@@ -40,78 +38,13 @@ vec3 color(const ray &r, hitable *world, int depth) {
     }
 }
 
-hitable *random_scene() {
-    int n = 500;
-    hitable **list = new hitable *[n + 1];
-    list[0] = new sphere{vec3(0, -1000, 0), 1000,
-                         new lambertian(vec3(0.5, 0.5, 0.5))};
-    int i = 1;
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
-            float choose_mat = Rand::gen_float();
-            vec3 center(a + 0.9 * Rand::gen_float(), 0.2,
-                        b + 0.9 * Rand::gen_float());
-            if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
-                if (choose_mat < 0.8) {
-                    list[i++] = new moving_sphere(
-                            center,
-                            center + vec3(0, 0.5 * Rand::gen_float(), 0), 0.0,
-                            1.0, 0.2,
-                            new lambertian(vec3(
-                                    Rand::gen_float() * Rand::gen_float(),
-                                    Rand::gen_float() * Rand::gen_float(),
-                                    Rand::gen_float() * Rand::gen_float())));
-                } else if (choose_mat < 0.95) {
-                    list[i++] = new sphere(
-                            center, 0.2,
-                            new metal(vec3(0.5f * (1 + Rand::gen_float()),
-                                           0.5f * (1 + Rand::gen_float()),
-                                           0.5f * (1 + Rand::gen_float())),
-                                      0.5f * Rand::gen_float()));
-                } else {
-                    list[i++] = new sphere(center, 0.2, new dielectric(1.5));
-                }
-            }
-        }
-    }
-    list[i++] = new sphere(vec3(0, 1, 0), 1.0, new dielectric(1.5));
-    list[i++] = new sphere(vec3(-4, 1, 0), 1.0,
-                           new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] =
-            new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
-    return new bvh_node(list, i, 0.0, 1.0);
-    // return new hitable_list(list, i);
-}
-
-void test_scene() {
-
-    constexpr int cnt = 5;
-
-    hitable *list[cnt];
-    float R = cos(M_PI / 4);
-    list[0] = new sphere(vec3(-R, 0, -1), R, new lambertian(vec3(0, 0, 1)));
-    list[1] = new sphere(vec3(R, 0, -1), R, new lambertian(vec3(1, 0, 0)));
-    list[0] = new sphere(vec3(0, 0, -1), 0.5,
-                         new lambertian(vec3(0.1, 0.2, 0.5)));
-    list[1] = new sphere(vec3(0, -100.5, -1), 100,
-                         new lambertian(vec3(0.8, 0.8, 0.0)));
-    list[2] = new sphere(vec3(1, 0, -1), 0.5, new metal(vec3(0.8, 0.6, 0.2)));
-    list[3] = new sphere(vec3(-1, 0, -1), 0.5, new dielectric(1.5));
-    list[4] = new sphere(vec3(-1, 0, -1), -0.45, new dielectric(1.5));
-    hitable *world = new hitable_list(list, cnt);
-
-    camera cam(vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, -1.0), vec3(0.0, 1.0, 0.0),
-               90, 2.0, 0.0, 1.0, 0.0, 1.0);
-}
-
-
 // out2 22.38
 // out3 7.54
 int main() {
     int nx = 150 * 1.0;
     int ny = 100 * 1.0;
     int ns = 30;
-    ofstream file("./out3.bmp", std::ios::binary);
+    ofstream file("./out4.bmp", std::ios::binary);
     int rowStride = ((nx * 3 + 3) & (~3));
 
 
@@ -128,13 +61,13 @@ int main() {
 
     vector file_content(ny, vector<uint8_t>(rowStride));
 
-    hitable *world = random_scene();
+    hitable *world = two_perlin_spheres();
 
     vec3 lookfrom(13, 2, 3.0);
     vec3 lookat(0.0, 0.0, 0.0);
     float aperture = 0.0;
     float dist_to_focus = (lookfrom - lookat).length() * 0.9f;
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 25,
+    camera cam(lookfrom, lookat, vec3(0, 1, 0), 20,
                static_cast<float>(nx) / static_cast<float>(ny), aperture,
                dist_to_focus, 0.0, 1.0);
     int done = 0;

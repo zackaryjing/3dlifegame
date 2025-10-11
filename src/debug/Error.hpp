@@ -1,3 +1,5 @@
+#pragma once
+
 #include <glad/glad.h>
 #include <iostream>
 #include <string>
@@ -7,7 +9,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-GLenum glCheckError_(const char *file, int line) {
+inline GLenum glCheckError_(const char *file, int line) {
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR) {
         string error;
@@ -41,7 +43,7 @@ GLenum glCheckError_(const char *file, int line) {
 
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
-void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
+inline void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id,
                             GLenum severity, GLsizei length,
                             const char *message, const void *userParam) {
     (void) length;

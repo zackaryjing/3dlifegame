@@ -1,9 +1,8 @@
 #pragma once
-#define STB_IMAGE_IMPLEMENTATION
 #include <format>
 #include <glad/glad.h>
 #include <iostream>
-#include "../../deps/stb/stb_image.h"
+#include <stb_image.h>
 
 #ifndef TEXTURE_DIR
 #define TEXTURE_DIR "../../assets/texture/"
@@ -11,10 +10,10 @@
 
 
 using std::cerr;
+using std::cout;
 using std::endl;
 
-
-inline unsigned int load_texture(string path) {
+inline unsigned int load_texture(const string &path) {
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);

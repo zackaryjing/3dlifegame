@@ -1,4 +1,5 @@
-#include <glm/glm.hpp>
+#include <string>
+using std::string;
 
 struct Material {
     glm::vec3 color;

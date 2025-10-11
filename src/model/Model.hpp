@@ -1,12 +1,12 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 #include <memory>
 #include <random>
+#include <ranges>
+
 #include "model/Material.hpp"
 #include "texture/TextureLoader.hpp"
 #include "utils/Type.hpp"
@@ -17,6 +17,7 @@ using std::tuple;
 using Type::VFVec2;
 using Type::VFVec3;
 using Type::VIVec3;
+using std::string;
 
 
 enum class ModelNormalGenType { FACEBASED, VERTEXBASED };

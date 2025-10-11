@@ -21,6 +21,8 @@ protected:
 
 public:
     string groupName = "";
+    float pauseTime = static_cast<float>(glfwGetTime());
+    float startTime = 0.0f;
     bool modelTurning = false;
     vector<shared_ptr<Model>> modelGroup;
     Group() :
@@ -51,6 +53,14 @@ public:
         groupShader.setInt("material.texDiffuse", 1);
     }
 
+    void resetTime() {
+        if (not modelTurning) {
+            pauseTime += glfwGetTime() - startTime;
+        } else {
+            startTime = static_cast<float>(glfwGetTime());
+        }
+    }
+
     void drawGroups(const glm::mat4 &view, const glm::mat4 &projection,
                     Light &light, const glm::vec3 cameraPos) {
         groupShader.use();
@@ -58,15 +68,16 @@ public:
         for (const auto &model: modelGroup) {
             setModelUniform(model);
 
-            glm::mat4 modelMat;
+            float curTime;
             if (modelTurning) {
-                modelMat = glm::rotate(model->modelMat,
-                                       static_cast<float>(glfwGetTime()) *
-                                               glm::radians(50.0f),
-                                       glm::vec3(0.5f, 1.0f, 0.0f));
+                curTime = static_cast<float>(glfwGetTime()) - startTime +
+                          pauseTime;
             } else {
-                modelMat = model->modelMat;
+                curTime = pauseTime;
             }
+            const glm::mat4 modelMat =
+                    glm::rotate(model->modelMat, curTime * glm::radians(50.0f),
+                                glm::vec3(0.5f, 1.0f, 0.0f));
             groupShader.setMatrix4("model", modelMat);
             if (model->use_texture) {
                 glActiveTexture(GL_TEXTURE1);
