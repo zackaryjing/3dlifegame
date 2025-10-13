@@ -38,6 +38,9 @@ public:
         glfwSetCursorPosCallback(window, GlobalCursor::mouse_callback);
         glfwSetScrollCallback(window, GlobalCursor::scroll_callback);
         glfwSetWindowFocusCallback(window, GlobalCursor::window_focus_callback);
+        glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
+        glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+        glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
     }
 
     DemoScene(GLFWwindow *window) : Scene(), cursor(camera), window(window) {

@@ -34,6 +34,8 @@ public:
             yoffset *= sensitivity;
 
             camera.lookAround(yoffset, xoffset);
+        } else {
+            ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
         }
     }
 
@@ -49,6 +51,8 @@ public:
             if (zoom > 45.0f)
                 zoom = 45.0f;
             camera.setFov(zoom);
+        } else {
+            ImGui_ImplGlfw_ScrollCallback(window, xoffset_param, yoffset_param);
         }
     }
     void window_focus_callback(GLFWwindow *window, int focused) {

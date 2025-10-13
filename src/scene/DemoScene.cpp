@@ -87,32 +87,11 @@ void DemoScene::addWidget() {
 
 void DemoScene::render() {
     glEnable(GL_DEPTH_TEST);
-    unsigned int texture = create_brick_wall_texture();
-    glActiveTexture(GL_TEXTURE0); // activate texture unit first
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    Window::commonWindowInit(io);
-    ImGui::StyleColorsDark();
-
-    if (not ImGui_ImplGlfw_InitForOpenGL(window, true)) {
-        cerr << "Failed to initialize ImGuiGlfwForOpenGL" << endl;
-        return;
-    }
-    if (not ImGui_ImplOpenGL3_Init()) {
-        cerr << "Failed to initialize ImGuiOpenGL3" << endl;
-        return;
-    }
-
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
+
+    const auto &io = ImGui::GetIO();
 
     while (not glfwWindowShouldClose(window) and isRendering) {
         glfwPollEvents();
@@ -150,8 +129,6 @@ void DemoScene::render() {
         glfwSwapBuffers(window);
         glfwSwapInterval(1);
     }
-
-    Window::destoryCommonWindow();
 }
 
 vector<float> DemoScene::genGLData() const {

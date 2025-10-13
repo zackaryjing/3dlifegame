@@ -25,10 +25,30 @@ public:
     }
 
     static void render() {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        Window::commonWindowInit(io);
+        ImGui::StyleColorsDark();
+
+        if (not ImGui_ImplGlfw_InitForOpenGL(window, false)) {
+            cerr << "Failed to initialize ImGuiGlfwForOpenGL" << endl;
+            return;
+        }
+        if (not ImGui_ImplOpenGL3_Init()) {
+            cerr << "Failed to initialize ImGuiOpenGL3" << endl;
+            return;
+        }
+
         while (not glfwWindowShouldClose(window)) {
             sceneLists[renderIndex]->takeControl();
             sceneLists[renderIndex]->render();
         }
+
+        Window::destoryCommonWindow();
     }
 
     static void addCommonWidget() {
