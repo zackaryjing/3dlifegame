@@ -40,7 +40,11 @@ add_library(common_headers INTERFACE
         src/geometry/Icosahedron.hpp
         src/geometry/Sphere.hpp
         src/scene/DemoScene.hpp
+        src/scene/MagicCubeScene.hpp
         src/scene/SceneManager.hpp
+        src/logic/MagicCube.hpp
+        src/animation/Animation.hpp
+        src/animation/AnimationManager.hpp
         src/raster/vec3.hpp
         src/raster/ray.hpp
         src/raster/hitable.hpp
@@ -76,6 +80,7 @@ add_executable(LifeGame
         src/main.cpp
         src/shaders/Shader.cpp
         src/scene/DemoScene.cpp
+        src/scene/MagicCubeScene.cpp
         src/texture/stb_image_impl.cpp)
 target_link_libraries(LifeGame PUBLIC common)
 target_compile_options(LifeGame PRIVATE -Werror)

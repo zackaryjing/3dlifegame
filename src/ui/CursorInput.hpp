@@ -11,7 +11,7 @@ public:
     float zoom = 45.0f;
     float moveThreshold = 100.0f;
     Camera &camera;
-    Cursor(Camera &camera) : camera(camera) {}
+    explicit Cursor(Camera &camera) : camera(camera) {}
     void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
         if (not Window::isAccessingUI) {
             (void) window;

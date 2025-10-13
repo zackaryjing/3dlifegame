@@ -4,6 +4,9 @@
 
 #include <glad/glad.h>
 // glad must be first
+#include "MagicCubeScene.hpp"
+
+
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
 #include <imgui.h>
@@ -16,16 +19,15 @@
 #include "group/Group.hpp"
 #include "light/Light.hpp"
 #include "model/Model.hpp"
-#include "scene/DemoScene.hpp"
 #include "scene/SceneManager.hpp"
 #include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
 
-string DemoScene::getText() {
+string MagicCubeScene::getText() {
     return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f}", camera.yaw,
                        camera.pitch, camera.fov);
 }
-void DemoScene::addWidget() {
+void MagicCubeScene::addWidget() {
     if (Window::isAccessingUI) {
         ImGui::Begin("Scene Window");
         if (ImGui::Checkbox("LightSpinning", &light.lightTurning)) {
@@ -42,7 +44,7 @@ void DemoScene::addWidget() {
     }
 }
 
-void DemoScene::render() {
+void MagicCubeScene::render() {
     glEnable(GL_DEPTH_TEST);
 
     float deltaTime = 0.0f;
@@ -54,7 +56,7 @@ void DemoScene::render() {
         glfwPollEvents();
         glCheckError();
         GlobalKeyboard::processInput(window, deltaTime, camera);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(VAO);
 
@@ -88,7 +90,7 @@ void DemoScene::render() {
     }
 }
 
-vector<float> DemoScene::genGLData() const {
+vector<float> MagicCubeScene::genGLData() const {
     vector<shared_ptr<Model>> models = {};
     models.push_back(light.lightModel);
 

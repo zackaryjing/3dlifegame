@@ -16,6 +16,7 @@ class Light {
 
 public:
     Light();
+    Light(glm::vec3 color, glm::vec3 position);
     glm::vec3 ambientColor;
     glm::vec3 diffuseColor;
     glm::vec3 specularColor;
@@ -25,7 +26,7 @@ public:
     string lighting_vshader = GLSL_DIR "LightingShader.vs";
     Shader lightShader = {};
     shared_ptr<Model> lightModel;
-    bool lightTurning = true;
+    bool lightTurning = false;
     float pauseTime = static_cast<float>(glfwGetTime());
     float startTime = 0.0f;
 
@@ -53,13 +54,14 @@ public:
     }
 
     void drawLight(glm::mat4 view, glm::mat4 projection) {
-        float curTime;
-        if (lightTurning) {
-            curTime = static_cast<float>(glfwGetTime()) - startTime + pauseTime;
-        } else {
-            curTime = pauseTime;
-        }
-        propertySpin(curTime);
+        // float curTime;
+        // if (lightTurning) {
+        //     curTime = static_cast<float>(glfwGetTime()) - startTime +
+        //     pauseTime;
+        // } else {
+        //     curTime = pauseTime;
+        // }
+        // propertySpin(curTime);
         lightShader.use();
         setCommonUniform(view, projection);
         setLightUniform();
@@ -84,6 +86,16 @@ inline Light::Light() {
             Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
     lightModel = make_shared<Model>(Model::getCube());
 }
+inline Light::Light(const glm::vec3 color, const glm::vec3 position) :
+    ambientColor(color), diffuseColor(color), specularColor(color),
+    lightColor(color), position(position) {
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    lightShader =
+            Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
+    lightModel = make_shared<Model>(Model::getCube());
+}
+
 
 inline void Light::propertySpin(float curTime) {
 
@@ -97,5 +109,5 @@ inline void Light::propertySpin(float curTime) {
                          glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
 
     diffuseColor = lightColor * glm::vec3(0.7f);
-    ambientColor = lightColor * glm::vec3(0.2f);
+    ambientColor = lightColor * glm::vec3(0.4f);
 }

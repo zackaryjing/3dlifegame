@@ -1,27 +1,27 @@
 #pragma once
-#include <format>
-#include <vector>
-
+#include <glad/glad.h>
+//
 #include <GLFW/glfw3.h>
-
+#include <vector>
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
 #include "light/Light.hpp"
+#include "logic/MagicCube.hpp"
 #include "scene/Scene.hpp"
 #include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
 
-using std::vector;
 
-
-class DemoScene final : public Scene {
+class MagicCubeScene final : public Scene {
 public:
-    Light light;
+    vector<Group> groups;
+    Light light = Light({0.7f, 0.7f, 0.7f}, {0.0f, 5.0f, 0.0f});
     FontPixelStyle font;
     Gizmo gizmo;
     Camera camera;
     Cursor cursor;
+    MagicCube magicCube;
     KeyboardMoveControl keyboard_move_control;
     [[nodiscard]] vector<float> genGLData() const override;
     GLFWwindow *window;
@@ -39,16 +39,17 @@ public:
         glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
     }
 
-    explicit DemoScene(GLFWwindow *window) :
+    explicit MagicCubeScene(GLFWwindow *window) :
         Scene(), cursor(camera), window(window) {
-        name = "Default Name";
-        groups.push_back(Group::getDemoGroup(5));
+        name = "Magic Cube Scene";
+        groups.push_back(magicCube.toGroup());
         glGenBuffers(1, &VBO);
         Scene::putDataToGL();
-        DemoScene::takeControl();
+        MagicCubeScene::takeControl();
     }
 
-    DemoScene(GLFWwindow *window, const string &name) : DemoScene(window) {
+    MagicCubeScene(GLFWwindow *window, const string &name) :
+        MagicCubeScene(window) {
         this->name = name;
     }
     string getText();

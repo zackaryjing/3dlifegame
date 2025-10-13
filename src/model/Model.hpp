@@ -8,16 +8,17 @@
 #include <ranges>
 
 #include "model/Material.hpp"
+#include "raster/utils.hpp"
 #include "texture/TextureLoader.hpp"
 #include "utils/Type.hpp"
 using std::copy_n;
 using std::make_pair;
 using std::pair;
+using std::string;
 using std::tuple;
 using Type::VFVec2;
 using Type::VFVec3;
 using Type::VIVec3;
-using std::string;
 
 
 enum class ModelNormalGenType { FACEBASED, VERTEXBASED };
@@ -57,6 +58,8 @@ public:
     static glm::vec3 randomVec3(float min, float max);
 
     static Model getCube();
+
+    static Model getRandomCube();
 
     static Model getWoodenBox();
 
@@ -162,10 +165,10 @@ inline Model Model::getCube() {
     const vector texture_coord_data = {
             0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+            1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
             1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
             1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
     };
 
@@ -187,22 +190,23 @@ inline Model Model::getCube() {
     instance.vertices = vertices_data;
     instance.texture_coord = texture_coord_data;
     instance.normals = normals_data;
-    instance.position = randomVec3(-3, 0);
-    glm::mat4 modelMat = glm::rotate(glm::mat4(1.0f),
-                                     static_cast<float>(rand()) /
-                                             static_cast<float>(RAND_MAX) *
-                                             glm::radians(180.0f),
-                                     randomVec3(0.0, 1.0));
-
-    modelMat = glm::translate(modelMat, instance.position);
-    instance.modelMat = modelMat;
-
+    instance.modelMat = glm::mat4(1.0f);
     return instance;
+}
+
+inline Model Model::getRandomCube() {
+    auto baseCube = getCube();
+    baseCube.position = randomVec3(-3, 0);
+    baseCube.modelMat = glm::rotate(glm::mat4(1.0f),
+                                    Rand::gen_float() * glm::radians(180.0f),
+                                    randomVec3(0.0, 1.0));
+    baseCube.modelMat = glm::translate(baseCube.modelMat, randomVec3(-3, 0));
+    return baseCube;
 }
 
 
 inline Model Model::getWoodenBox() {
-    auto baseCube = getCube();
+    auto baseCube = getRandomCube();
     baseCube.use_texture = true;
     baseCube.diffuse_textureID = create_wooden_box_texture();
     return baseCube;

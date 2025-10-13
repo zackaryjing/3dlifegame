@@ -17,10 +17,9 @@ protected:
 
     static inline string vertex_shader = GLSL_DIR "CubeShader.vs";
     static inline string fragment_shader = GLSL_DIR "CubeShader.fs";
-    unsigned int groupVAO;
 
 public:
-    string groupName = "";
+    string groupName;
     float pauseTime = static_cast<float>(glfwGetTime());
     float startTime = 0.0f;
     bool modelTurning = false;
@@ -28,10 +27,26 @@ public:
     Group() :
         groupShader(vertex_shader, fragment_shader, ShaderParamType::PATH,
                     "groupShader") {}
+    Group(const string &vShaderPath, const string &fShaderPath) :
+        groupShader(vShaderPath, fShaderPath, ShaderParamType::PATH,
+                    "groupShader") {}
+
 
     explicit Group(const Shader shader) : groupShader(shader) {}
 
     void addModel(shared_ptr<Model> model) { modelGroup.push_back(model); };
+
+    void addModels(vector<shared_ptr<Model>> models) {
+        modelGroup.insert(modelGroup.end(), models.begin(), models.end());
+    }
+
+    void rotate(size_t mask, const glm::mat4 &modelMat) const {
+        for (size_t i = 0; i < modelGroup.size(); ++i) {
+            if ((mask >> i) & 1) {
+                modelGroup[i]->modelMat = modelMat;
+            }
+        }
+    }
 
     void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light,
                           glm::vec3 cameraPos) {
@@ -54,10 +69,10 @@ public:
     }
 
     void resetTime() {
-        if (not modelTurning) {
-            pauseTime += glfwGetTime() - startTime;
-        } else {
+        if (modelTurning) {
             startTime = static_cast<float>(glfwGetTime());
+        } else {
+            pauseTime += static_cast<float>(glfwGetTime()) - startTime;
         }
     }
 
@@ -68,17 +83,19 @@ public:
         for (const auto &model: modelGroup) {
             setModelUniform(model);
 
-            float curTime;
-            if (modelTurning) {
-                curTime = static_cast<float>(glfwGetTime()) - startTime +
-                          pauseTime;
-            } else {
-                curTime = pauseTime;
-            }
-            const glm::mat4 modelMat =
-                    glm::rotate(model->modelMat, curTime * glm::radians(50.0f),
-                                glm::vec3(0.5f, 1.0f, 0.0f));
-            groupShader.setMatrix4("model", modelMat);
+            // float curTime;
+            // if (modelTurning) {
+            //     curTime = static_cast<float>(glfwGetTime()) - startTime +
+            //               pauseTime;
+            // } else {
+            //     curTime = pauseTime;
+            // }
+            // model->modelMat =
+            //         glm::rotate(model->modelMat, curTime *
+            //         glm::radians(50.0f),
+            //                     glm::vec3(0.5f, 1.0f, 0.0f));
+
+            groupShader.setMatrix4("model", model->modelMat);
             if (model->use_texture) {
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, model->diffuse_textureID);
@@ -88,19 +105,19 @@ public:
         }
     }
 
-    static inline Group getDemoGroup(int n) {
+    static inline Group getDemoGroup(const int n) {
         Group group;
         group.groupName = "DemoGroup";
         group.modelTurning = false;
         for (int i = 0; i < n; ++i) {
-            group.modelGroup.emplace_back(make_shared<Model>(Model::getCube()));
+            group.modelGroup.emplace_back(make_shared<Model>(Model::getRandomCube()));
         }
         group.modelTurning = true;
 
         // Icosahedron icosahedron(1.0);
         Sphere sphere(1.0);
         group.modelGroup.push_back(make_shared<Model>(sphere.toModel()));
-        // group.modelGroup.push_back(make_shared<Model>(Model::getWoodenBox()));
+        group.modelGroup.push_back(make_shared<Model>(Model::getWoodenBox()));
         group.modelGroup.push_back(make_shared<Model>(Model::getTriangle()));
         // group.modelGroup.push_back(make_shared<Model>(icosahedron.toModel()));
 
