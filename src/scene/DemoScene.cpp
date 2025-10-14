@@ -25,9 +25,12 @@ string DemoScene::getText() {
     return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f}", camera.yaw,
                        camera.pitch, camera.fov);
 }
-void DemoScene::addWidget() {
+void DemoScene::addWidget(const ImGuiIO &io) {
     if (Window::isAccessingUI) {
         ImGui::Begin("Scene Window");
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                    1000.0f / io.Framerate, io.Framerate);
         if (ImGui::Checkbox("LightSpinning", &light.lightTurning)) {
             light.resetTime();
         }
@@ -75,7 +78,7 @@ void DemoScene::render() {
         ImGui::NewFrame();
         Window::addCommonWidget(io);
         SceneManager::addCommonWidget();
-        addWidget();
+        addWidget(io);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

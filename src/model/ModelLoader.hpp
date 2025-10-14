@@ -25,10 +25,6 @@ using std::tuple;
 using std::vector;
 
 
-enum class SplitMode {
-    SkipSameSep, // count multiple continuous sep as one
-    KeepSameSep, // count continuous sep as single one
-};
 
 class ModelLoader {
 private:
@@ -47,24 +43,24 @@ public:
         while (std::getline(file, line)) {
             std::istringstream iss(line);
             if (line.starts_with("mtllib")) {
-                material = split(line, " ")[1];
+                material = Str::split(line, " ")[1];
             } else if (line.starts_with("vn")) {
-                auto normal = split(line, " ");
+                auto normal = Str::split(line, " ");
                 normals_raw.emplace_back(stof(normal[1]), stof(normal[2]),
                                          stof(normal[3]));
             } else if (line.starts_with("vt")) {
-                auto coord = split(line, " ");
+                auto coord = Str::split(line, " ");
                 texture_coord_raw.emplace_back(stof(coord[1]), stof(coord[2]));
             } else if (line.starts_with("v")) {
-                auto vertex = split(line, " ");
+                auto vertex = Str::split(line, " ");
                 vertices_raw.emplace_back(stof(vertex[1]), stof(vertex[2]),
                                           stof(vertex[3]));
             } else if (line.starts_with("f")) {
-                auto face_indices = split(line, " ");
+                auto face_indices = Str::split(line, " ");
                 VIVec3 face;
                 for (size_t i = 1; i < face_indices.size(); ++i) {
                     auto indices =
-                            split(face_indices[i], "/", SplitMode::KeepSameSep);
+                            Str::split(face_indices[i], "/", SplitMode::KeepSameSep);
                     face.emplace_back(stoi(indices[0]), stoi(indices[1]),
                                       stoi(indices[2]));
                 }
@@ -160,55 +156,4 @@ public:
         }
         return Model::genModel(vertices, normals, texture_coord, material_name);
     };
-
-
-    static inline vector<string>
-    split(const string &str, const string &separator,
-          SplitMode splitMode = SplitMode::SkipSameSep) {
-        if (separator.empty()) {
-            throw std::invalid_argument("Seperator can't be empty");
-        }
-        vector<string> res;
-        size_t m = separator.size();
-        size_t n = str.size();
-        if (m == 1) {
-            char sep = separator[0];
-            size_t base = 0;
-            for (size_t i = 0; i < n; ++i) {
-                if (str[i] == sep) {
-                    if (i > base) {
-                        res.push_back(str.substr(base, i - base));
-                    } else if (splitMode == SplitMode::KeepSameSep) {
-                        res.push_back("");
-                    }
-                    base = i + 1;
-                }
-            }
-            if (str[n - 1] != sep) {
-                res.push_back(str.substr(base, n - base));
-            } else if (splitMode == SplitMode::KeepSameSep) {
-                res.push_back("");
-            }
-        } else {
-            size_t base = 0;
-            while (base < n) {
-                size_t pos = str.find(separator, base);
-                if (pos == string::npos) {
-                    break;
-                }
-                if (pos > base) {
-                    res.push_back(str.substr(base, pos - base));
-                } else if (splitMode == SplitMode::KeepSameSep) {
-                    res.push_back("");
-                }
-                base = pos + m;
-            }
-            if (base < n) {
-                res.push_back(str.substr(base, n - base));
-            } else if (splitMode == SplitMode::KeepSameSep) {
-                res.push_back("");
-            }
-        }
-        return res;
-    }
 };

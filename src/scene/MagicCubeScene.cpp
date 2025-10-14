@@ -23,25 +23,29 @@
 #include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
 
-string MagicCubeScene::getText() {
-    return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f}", camera.yaw,
-                       camera.pitch, camera.fov);
+string MagicCubeScene::getText(const ImGuiIO &io) {
+    return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f} Fps: {:}",
+                       camera.yaw, camera.pitch, camera.fov, io.Framerate);
 }
-void MagicCubeScene::addWidget() {
-    if (Window::isAccessingUI) {
-        ImGui::Begin("Scene Window");
-        if (ImGui::Checkbox("LightSpinning", &light.lightTurning)) {
-            light.resetTime();
-        }
-        int group_id = 0;
-        for (auto &group: groups) {
-            if (ImGui::Checkbox(format("ModelTurning {:d}", group_id++).c_str(),
-                                &group.modelTurning)) {
-                group.resetTime();
-            }
-        }
-        ImGui::End();
+void MagicCubeScene::addWidget(const float curTime) {
+    ImGui::Begin("Scene Window");
+    static char text[1024 * 2] = "R F B2 U2 D F' R' L' F2 U2 R' D' B"
+                                 " B' D R U2 F2 L R F D' U2 B2 F' R'";
+    static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput |
+                                       ImGuiInputTextFlags_CtrlEnterForNewLine;
+    ImGui::InputTextMultiline(
+            "##source", text, IM_ARRAYSIZE(text),
+            ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 1.5), flags);
+    static string msg;
+    if (ImGui::Button("Execute")) {
+        magicCube.executeInput(string(text), msg, curTime);
     }
+    if (ImGui::Button("Reset")) {
+        magicCube.reset();
+    }
+    ImGui::Text("%s", msg.c_str());
+
+    ImGui::End();
 }
 
 void MagicCubeScene::render() {
@@ -63,12 +67,14 @@ void MagicCubeScene::render() {
         const glm::mat4 view = camera.getView();
         glm::mat4 projection = camera.getProjection();
 
+        const float curTime = static_cast<float>(glfwGetTime());
+        animationManager.update(curTime);
         light.drawLight(view, projection);
         for (auto group: groups) {
             group.drawGroups(view, projection, light, camera.cameraPos);
         }
         gizmo.drawGroups(view, camera.cameraPos);
-        font.drawText(getText(), 25.0f, 25.0f, 2.0f,
+        font.drawText(getText(io), 25.0f, 25.0f, 2.0f,
                       glm::vec3(0.5f, 0.8f, 0.2f));
 
 
@@ -77,13 +83,12 @@ void MagicCubeScene::render() {
         ImGui::NewFrame();
         Window::addCommonWidget(io);
         SceneManager::addCommonWidget();
-        addWidget();
+        addWidget(curTime);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        const auto currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        deltaTime = curTime - lastFrame;
+        lastFrame = curTime;
 
         glfwSwapBuffers(window);
         glfwSwapInterval(1);

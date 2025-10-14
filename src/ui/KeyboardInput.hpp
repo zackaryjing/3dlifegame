@@ -26,8 +26,10 @@ public:
             Window::isAccessingUI = false;
             Window::updateCursorState(window);
         }
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(window, true);
+        if (not Window::isAccessingUI) {
+            if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+                glfwSetWindowShouldClose(window, true);
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
             Window::isAccessingUI = true;

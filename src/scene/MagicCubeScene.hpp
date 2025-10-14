@@ -3,6 +3,8 @@
 //
 #include <GLFW/glfw3.h>
 #include <vector>
+
+#include "animation/AnimationManager.hpp"
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
@@ -21,7 +23,8 @@ public:
     Gizmo gizmo;
     Camera camera;
     Cursor cursor;
-    MagicCube magicCube;
+    AnimationManager animationManager;
+    MagicCube magicCube = MagicCube(animationManager);
     KeyboardMoveControl keyboard_move_control;
     [[nodiscard]] vector<float> genGLData() const override;
     GLFWwindow *window;
@@ -52,8 +55,8 @@ public:
         MagicCubeScene(window) {
         this->name = name;
     }
-    string getText();
-    void addWidget();
+    string getText(const ImGuiIO &io);
+    void addWidget(float curTime);
     void render() override;
     void stop() override { isRendering = false; }
 };

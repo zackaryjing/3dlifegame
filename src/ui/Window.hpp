@@ -16,7 +16,7 @@ public:
     static inline const char *name = "LifeGame";
     static inline bool hasInit = false;
     static inline bool isAccessingUI = false;
-    static inline bool show_demo_window = true;
+    static inline bool show_demo_window = false;
     static inline ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.0f);
 
     static void updateCursorState(GLFWwindow *window) {
@@ -53,18 +53,13 @@ public:
     }
 
     static void addCommonWidget(const ImGuiIO &io) {
+        (void) io;
         if (isAccessingUI) {
 
             if (show_demo_window) {
                 ImGui::ShowDemoWindow(&show_demo_window);
             }
 
-            {
-                ImGui::Begin("Config Window");
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                            1000.0f / io.Framerate, io.Framerate);
-                ImGui::End();
-            }
 
             //     ImGui::Checkbox("DemoWindow", &show_window);
             //     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);

@@ -110,7 +110,8 @@ public:
         group.groupName = "DemoGroup";
         group.modelTurning = false;
         for (int i = 0; i < n; ++i) {
-            group.modelGroup.emplace_back(make_shared<Model>(Model::getRandomCube()));
+            group.modelGroup.emplace_back(
+                    make_shared<Model>(Model::getRandomCube()));
         }
         group.modelTurning = true;
 

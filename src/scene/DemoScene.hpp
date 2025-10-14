@@ -52,7 +52,7 @@ public:
         this->name = name;
     }
     string getText();
-    void addWidget();
+    void addWidget(const ImGuiIO &io);
     void render() override;
     void stop() override { isRendering = false; }
 };

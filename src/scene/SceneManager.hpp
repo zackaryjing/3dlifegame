@@ -27,6 +27,8 @@ public:
     }
 
     static void render() {
+        float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(
+                glfwGetPrimaryMonitor());
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -35,6 +37,9 @@ public:
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         Window::commonWindowInit(io);
         ImGui::StyleColorsDark();
+        ImGuiStyle &style = ImGui::GetStyle();
+        style.ScaleAllSizes(main_scale);
+        style.FontScaleDpi = main_scale;
 
         if (not ImGui_ImplGlfw_InitForOpenGL(window, false)) {
             cerr << "Failed to initialize ImGuiGlfwForOpenGL" << endl;
@@ -44,6 +49,8 @@ public:
             cerr << "Failed to initialize ImGuiOpenGL3" << endl;
             return;
         }
+
+        style.FontSizeBase = 18.0f;
 
         while (not glfwWindowShouldClose(window)) {
             sceneLists[renderIndex]->takeControl();
@@ -58,7 +65,7 @@ public:
             auto changed = false;
             int lastIndex = -1;
             {
-                ImGui::Begin("Config Window");
+                ImGui::Begin("Scene Selector");
                 if (ImGui::TreeNode("Scene Select")) {
                     for (int i = 0; i < sceneCnt; i++) {
                         if (const auto &scene = sceneLists[i];
