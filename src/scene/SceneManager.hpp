@@ -21,8 +21,8 @@ public:
     static inline int sceneCnt = 0;
     static void init(GLFWwindow *_window) {
         window = _window;
-        sceneLists.push_back(new MagicCubeScene(window));
         sceneLists.push_back(new DemoScene(window, "Scene one"));
+        sceneLists.push_back(new MagicCubeScene(window));
         sceneCnt = 2;
     }
 

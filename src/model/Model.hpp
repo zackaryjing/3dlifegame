@@ -39,7 +39,8 @@ public:
     /* data position in VAO */
     pair<int, int> dataPos;
     bool use_texture = false;
-    unsigned int diffuse_textureID = 0;
+    unsigned int diffuse_textureId = 0;
+    unsigned int specular_textureId = 0;
 
 
     void setDataPos(int start, int cnt) { dataPos = make_pair(start, cnt); }
@@ -208,7 +209,7 @@ inline Model Model::getRandomCube() {
 inline Model Model::getWoodenBox() {
     auto baseCube = getRandomCube();
     baseCube.use_texture = true;
-    baseCube.diffuse_textureID = create_wooden_box_texture();
+    baseCube.diffuse_textureId = create_wooden_box_texture();
     return baseCube;
 }
 
@@ -232,7 +233,7 @@ inline Model Model::getTriangle() {
     instance.position = glm::vec3(0.0f, 2.0f, -2.0f);
     instance.modelMat = glm::translate(glm::mat4(1.0f), instance.position);
     instance.use_texture = true;
-    instance.diffuse_textureID = create_wooden_box_texture();
+    instance.diffuse_textureId = create_wooden_box_texture();
 
     return instance;
 }

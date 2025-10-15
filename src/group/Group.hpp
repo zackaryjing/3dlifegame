@@ -98,7 +98,7 @@ public:
             groupShader.setMatrix4("model", model->modelMat);
             if (model->use_texture) {
                 glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, model->diffuse_textureID);
+                glBindTexture(GL_TEXTURE_2D, model->diffuse_textureId);
             }
             glDrawArrays(GL_TRIANGLES, model->dataPos.first,
                          model->dataPos.second);

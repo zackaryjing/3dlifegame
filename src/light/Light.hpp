@@ -1,6 +1,8 @@
 #pragma once
 #include <glad/glad.h>
 #include <iostream>
+
+#include "animation/Animation.hpp"
 #include "camera/Camera.hpp"
 #include "model/Model.hpp"
 #include "shaders/Shader.hpp"
@@ -15,8 +17,11 @@ class Light {
     unsigned int lightVAO;
 
 public:
-    Light();
+    Light(const glm::vec3 &ambientColor, const glm::vec3 &diffuseColor,
+          const glm::vec3 &specularColor, const glm::vec3 &lightColor,
+          const glm::vec3 &pos);
     Light(glm::vec3 color, glm::vec3 position);
+    Light();
     glm::vec3 ambientColor;
     glm::vec3 diffuseColor;
     glm::vec3 specularColor;
@@ -26,16 +31,17 @@ public:
     string lighting_vshader = GLSL_DIR "LightingShader.vs";
     Shader lightShader = {};
     shared_ptr<Model> lightModel;
-    bool lightTurning = false;
+    bool lightTurning = true;
     float pauseTime = static_cast<float>(glfwGetTime());
     float startTime = 0.0f;
+    Animation *lightPosAnimation;
+    Animation *lightColorAnimation;
+    float duration = 4.0f;
+    glm::vec3 phase = {0, M_PI / 4, M_PI / 2};
 
-    void resetTime() {
-        if (not lightTurning) {
-            pauseTime += glfwGetTime() - startTime;
-        } else {
-            startTime = static_cast<float>(glfwGetTime());
-        }
+    void resetAnimationTime(const float curTime) const {
+        lightPosAnimation->startTime = curTime;
+        lightColorAnimation->startTime = curTime;
     }
 
     void propertySpin(float curTime);
@@ -54,14 +60,6 @@ public:
     }
 
     void drawLight(glm::mat4 view, glm::mat4 projection) {
-        // float curTime;
-        // if (lightTurning) {
-        //     curTime = static_cast<float>(glfwGetTime()) - startTime +
-        //     pauseTime;
-        // } else {
-        //     curTime = pauseTime;
-        // }
-        // propertySpin(curTime);
         lightShader.use();
         setCommonUniform(view, projection);
         setLightUniform();
@@ -74,40 +72,33 @@ public:
     }
 };
 
-inline Light::Light() {
+inline Light::Light(const glm::vec3 &ambientColor,
+                    const glm::vec3 &diffuseColor,
+                    const glm::vec3 &specularColor, const glm::vec3 &lightColor,
+                    const glm::vec3 &pos) :
+    ambientColor(ambientColor), diffuseColor(diffuseColor),
+    specularColor(specularColor), lightColor(lightColor), position(pos) {
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
-    ambientColor = glm::vec3(0.2f, 0.2f, 0.2f);
-    diffuseColor = glm::vec3(0.5f, 0.5f, 0.5f);
-    specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    position = glm::vec3(0.0f, 3.0f, 0.0f);
     lightShader =
             Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
     lightModel = make_shared<Model>(Model::getCube());
+    lightModel->modelMat = glm::translate(lightModel->modelMat, position);
+    auto curTime = glfwGetTime();
+    lightPosAnimation = new RotatePosAnimation(
+            duration, curTime, true, glm::vec3(0.0, 0.0, 1.0), 360,
+            lightModel->modelMat, this->position);
+    lightColorAnimation =
+            new Vec3SinAnimation(duration, curTime, true, glm::vec3(0.5),
+                                 {duration, duration / 2, duration / 4},
+                                 glm::vec3(0.75), phase, this->lightColor);
 }
+
+
 inline Light::Light(const glm::vec3 color, const glm::vec3 position) :
-    ambientColor(color), diffuseColor(color), specularColor(color),
-    lightColor(color), position(position) {
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    lightShader =
-            Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
-    lightModel = make_shared<Model>(Model::getCube());
-}
+    Light(color, color, color, color, position) {}
 
-
-inline void Light::propertySpin(float curTime) {
-
-    lightColor.x = sin(curTime * 2.0f) * 0.25f + 0.75;
-    lightColor.y = sin(curTime * 0.7f) * 0.25f + 0.75;
-    lightColor.y = sin(curTime * 1.3f) * 0.25f + 0.75;
-
-    position = glm::vec3(glm::rotate(glm::mat4(1.0f),
-                                     curTime * glm::radians(50.0f),
-                                     glm::vec3(0.0f, 0.0f, 1.0f)) *
-                         glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
-
-    diffuseColor = lightColor * glm::vec3(0.7f);
-    ambientColor = lightColor * glm::vec3(0.4f);
-}
+inline Light::Light() :
+    Light(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f),
+          glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+          glm::vec3(0.0f, 3.0f, 0.0f)) {}

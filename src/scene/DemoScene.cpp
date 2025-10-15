@@ -25,14 +25,21 @@ string DemoScene::getText() {
     return std::format("Yaw:{:.2f} Pitch:{:.2f} Fov:{:.2f}", camera.yaw,
                        camera.pitch, camera.fov);
 }
-void DemoScene::addWidget(const ImGuiIO &io) {
+void DemoScene::addWidget(const float curTime, const ImGuiIO &io) {
     if (Window::isAccessingUI) {
         ImGui::Begin("Scene Window");
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                     1000.0f / io.Framerate, io.Framerate);
         if (ImGui::Checkbox("LightSpinning", &light.lightTurning)) {
-            light.resetTime();
+            if (light.lightTurning) {
+                light.resetAnimationTime(curTime);
+                animationManager.addAnimation(light.lightPosAnimation);
+                animationManager.addAnimation(light.lightColorAnimation);
+            } else {
+                animationManager.removeAnimation(light.lightPosAnimation);
+                animationManager.removeAnimation(light.lightColorAnimation);
+            }
         }
         int group_id = 0;
         for (auto &group: groups) {
@@ -51,6 +58,11 @@ void DemoScene::render() {
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
+    if (light.lightTurning) {
+        animationManager.addAnimation(light.lightPosAnimation);
+        animationManager.addAnimation(light.lightColorAnimation);
+    }
+
     const auto &io = ImGui::GetIO();
 
     while (not glfwWindowShouldClose(window) and isRendering) {
@@ -64,6 +76,8 @@ void DemoScene::render() {
         const glm::mat4 view = camera.getView();
         glm::mat4 projection = camera.getProjection();
 
+        const float curTime = static_cast<float>(glfwGetTime());
+        animationManager.update(curTime);
         light.drawLight(view, projection);
         for (auto group: groups) {
             group.drawGroups(view, projection, light, camera.cameraPos);
@@ -78,13 +92,12 @@ void DemoScene::render() {
         ImGui::NewFrame();
         Window::addCommonWidget(io);
         SceneManager::addCommonWidget();
-        addWidget(io);
+        addWidget(curTime, io);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        const auto currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        deltaTime = curTime - lastFrame;
+        lastFrame = curTime;
 
         glfwSwapBuffers(window);
         glfwSwapInterval(1);

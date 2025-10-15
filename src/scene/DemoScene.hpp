@@ -4,10 +4,12 @@
 
 #include <GLFW/glfw3.h>
 
+#include "animation/AnimationManager.hpp"
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
 #include "light/Light.hpp"
+#include "logic/MagicCube.hpp"
 #include "scene/Scene.hpp"
 #include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
@@ -22,6 +24,7 @@ public:
     Gizmo gizmo;
     Camera camera;
     Cursor cursor;
+    AnimationManager animationManager;
     KeyboardMoveControl keyboard_move_control;
     [[nodiscard]] vector<float> genGLData() const override;
     GLFWwindow *window;
@@ -52,7 +55,7 @@ public:
         this->name = name;
     }
     string getText();
-    void addWidget(const ImGuiIO &io);
+    void addWidget(float curTime, const ImGuiIO &io);
     void render() override;
     void stop() override { isRendering = false; }
 };
