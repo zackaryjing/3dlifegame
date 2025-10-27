@@ -1,4 +1,7 @@
 #pragma once
+#include <stb_image.h>
+
+
 #include "raster/bvh_node.hpp"
 #include "raster/camera.hpp"
 #include "raster/hitable.hpp"
@@ -7,6 +10,7 @@
 #include "raster/sphere.hpp"
 #include "raster/texture.hpp"
 #include "raster/utils.hpp"
+#include "raster/xy_rect.hpp"
 
 hitable *random_scene() {
     int n = 500;
@@ -90,9 +94,33 @@ void test_scene() {
 
 
 hitable *two_perlin_spheres() {
-    texture *pertext = new noise_texture();
+    texture *pertext = new noise_texture(4);
     hitable **list = new hitable *[2];
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(pertext));
     list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertext));
     return new hitable_list(list, 2);
+}
+
+hitable *earth_sphere() {
+    int nx, ny, nn;
+    unsigned char *tex_data =
+            stbi_load(TEXTURE_DIR "earth_map_texture.jpg", &nx, &ny, &nn, 0);
+    material *mat = new lambertian(new image_texture(tex_data, nx, ny));
+    hitable **list = new hitable *[1];
+    list[0] = new sphere(vec3(0, 0, 0), 2, mat);
+    return new hitable_list(list, 1);
+}
+
+hitable *simple_light() {
+    texture *pertext = new noise_texture(4);
+    hitable **list = new hitable *[4];
+    list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(pertext));
+    list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertext));
+    list[2] = new sphere(
+            vec3(0, 7, 0), 2,
+            new diffuse_light(new constant_texture(vec3(0.7, 0.7, 0.7))));
+    list[3] = new xy_rect(
+            3, 5, 1, 3, -2,
+            new diffuse_light(new constant_texture({0.7, 0.7, 0.7})));
+    return new hitable_list(list, 4);
 }

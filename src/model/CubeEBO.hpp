@@ -158,7 +158,7 @@ struct CubeEBO {
 
         ourShader.use();
 
-        unsigned int texture = create_brick_wall_texture();
+        unsigned int texture = createBrickWallTexture();
 
         glActiveTexture(GL_TEXTURE0); // activate texture unit first
         glBindTexture(GL_TEXTURE_2D, texture);

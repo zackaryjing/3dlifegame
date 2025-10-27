@@ -49,6 +49,6 @@ public:
 
     Model toModel() {
         return Model::genModel(points, faceIndices,
-                               ModelNormalGenType::VERTEXBASED);
+                               ModelNormalGenType::VERTEX_BASED);
     }
 };

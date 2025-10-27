@@ -78,6 +78,6 @@ public:
     Model toModel() {
         // showVFVec3(points);
         return Model::genModel(points, faceIndices,
-                               ModelNormalGenType::VERTEXBASED);
+                               ModelNormalGenType::VERTEX_BASED);
     }
 };

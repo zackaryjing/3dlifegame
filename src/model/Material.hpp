@@ -16,6 +16,8 @@ public:
              auto shininess, auto name) :
         color(color), ambient(ambient), diffuse(diffuse), specular(specular),
         shininess(shininess), name(name) {};
+    explicit Material(const glm::vec3 color) :
+        Material(color, color, color, color, 32.0f, "Same-Color-Material") {}
     Material() :
         color(glm::vec3(1.0f, 0.5f, 0.31f)),
         ambient(glm::vec3(1.0f, 0.5f, 0.31f)),

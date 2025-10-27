@@ -25,11 +25,12 @@ vec3 color(const ray &r, hitable *world, int depth) {
     if (world->hit(r, 0.001, FLT_MAX, rec)) {
         ray scattered;
         vec3 attenuation;
+        vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 &&
             rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            return attenuation * color(scattered, world, depth + 1);
+            return emitted + attenuation * color(scattered, world, depth + 1);
         } else {
-            return vec3(0, 0, 0);
+            return emitted;
         }
     } else {
         vec3 unit_direction = unit(r.direction());
@@ -41,12 +42,11 @@ vec3 color(const ray &r, hitable *world, int depth) {
 // out2 22.38
 // out3 7.54
 int main() {
-    int nx = 150 * 1.0;
-    int ny = 100 * 1.0;
-    int ns = 30;
+    int nx = 150 * 2.5;
+    int ny = 100 * 2.5;
+    int ns = 50;
     ofstream file("./out4.bmp", std::ios::binary);
     int rowStride = ((nx * 3 + 3) & (~3));
-
 
     BMPFileHeader fileHeader;
     BMPInfoHeader infoHeader;
@@ -61,7 +61,9 @@ int main() {
 
     vector file_content(ny, vector<uint8_t>(rowStride));
 
-    hitable *world = two_perlin_spheres();
+    // hitable *world = two_perlin_spheres();
+    // hitable *world = earth_sphere();
+    hitable *world = simple_light();
 
     vec3 lookfrom(13, 2, 3.0);
     vec3 lookat(0.0, 0.0, 0.0);

@@ -11,6 +11,7 @@
 #include "light/Light.hpp"
 #include "logic/MagicCube.hpp"
 #include "scene/Scene.hpp"
+#include "skybox/Skybox.hpp"
 #include "ui/CursorInput.hpp"
 #include "ui/KeyboardInput.hpp"
 
@@ -26,6 +27,7 @@ public:
     Cursor cursor;
     AnimationManager animationManager;
     KeyboardMoveControl keyboard_move_control;
+    Skybox skybox;
     [[nodiscard]] vector<float> genGLData() const override;
     GLFWwindow *window;
     bool isRendering = false;

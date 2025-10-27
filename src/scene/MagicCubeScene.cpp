@@ -110,26 +110,26 @@ vector<float> MagicCubeScene::genGLData() const {
 
     const int total_cnts = ranges::fold_left(
             models, 0, [](const int total, const shared_ptr<Model> &model) {
-                return total + model->vertex_cnt;
+                return total + model->vertexCnt;
             });
 
     vector<float> vertices;
     vertices.reserve(total_cnts * 8);
     int start_point = 0;
     for (const auto &model: models) {
-        for (size_t i = 0; i < model->vertex_cnt; ++i) {
+        for (size_t i = 0; i < model->vertexCnt; ++i) {
             for (int j = 0; j < 3; ++j) {
                 vertices.push_back(model->vertices[i * 3 + j]);
             }
             for (int j = 0; j < 2; ++j) {
-                vertices.push_back(model->texture_coord[i * 2 + j]);
+                vertices.push_back(model->textureCoord[i * 2 + j]);
             }
             for (int j = 0; j < 3; ++j) {
                 vertices.push_back(model->normals[i * 3 + j]);
             }
         }
-        model->setDataPos(start_point, model->vertex_cnt);
-        start_point += model->vertex_cnt;
+        model->setDataPos(start_point, model->vertexCnt);
+        start_point += model->vertexCnt;
     }
     return vertices;
 }

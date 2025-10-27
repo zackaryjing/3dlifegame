@@ -21,7 +21,7 @@ using Type::VFVec3;
 using Type::VIVec3;
 
 
-enum class ModelNormalGenType { FACEBASED, VERTEXBASED };
+enum class ModelNormalGenType { FACE_BASED, VERTEX_BASED };
 
 // model shouldn't have a render function.
 // render a model is managed by the scene
@@ -29,18 +29,18 @@ class Model {
 public:
     Model() = default;
     vector<float> vertices = {};
-    vector<float> texture_coord = {};
+    vector<float> textureCoord = {};
     vector<float> normals = {};
-    string material_name;
-    size_t vertex_cnt = {};
+    string materialName;
+    size_t vertexCnt = {};
     Material material;
     glm::vec3 position = {};
     glm::mat4 modelMat = {};
     /* data position in VAO */
     pair<int, int> dataPos;
-    bool use_texture = false;
-    unsigned int diffuse_textureId = 0;
-    unsigned int specular_textureId = 0;
+    bool useTexture = false;
+    unsigned int diffuseTextureId = 0;
+    unsigned int specularTextureId = 0;
 
 
     void setDataPos(int start, int cnt) { dataPos = make_pair(start, cnt); }
@@ -70,7 +70,7 @@ public:
 
 inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
                              const ModelNormalGenType model_normal_gen =
-                                     ModelNormalGenType::FACEBASED) {
+                                     ModelNormalGenType::FACE_BASED) {
     size_t n = faceIndices.size() * 3;
     VFVec3 fullVertices(n * 3);
     VFVec3 fullNormals(n * 3);
@@ -88,11 +88,11 @@ inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
                                                   fullVertices[index * 3 + 1],
                                                   fullVertices[index * 3 + 2]}),
                                     center));
-        if (model_normal_gen == ModelNormalGenType::FACEBASED) {
+        if (model_normal_gen == ModelNormalGenType::FACE_BASED) {
             fullNormals[index * 3] = faceNormal;
             fullNormals[index * 3 + 1] = faceNormal;
             fullNormals[index * 3 + 2] = faceNormal;
-        } else if (model_normal_gen == ModelNormalGenType::VERTEXBASED) {
+        } else if (model_normal_gen == ModelNormalGenType::VERTEX_BASED) {
             fullNormals[index * 3] = normalize(substract(vertexA, center));
             fullNormals[index * 3 + 1] = normalize(substract(vertexB, center));
             fullNormals[index * 3 + 2] = normalize(substract(vertexC, center));
@@ -128,14 +128,14 @@ inline Model Model::genModel(VFVec3 vertices, VFVec3 normals,
         instance.normals[i * 3 + 1] = get<1>(normal);
         instance.normals[i * 3 + 2] = get<2>(normal);
     }
-    instance.texture_coord = vector<float>(n * 2);
+    instance.textureCoord = vector<float>(n * 2);
     for (size_t i = 0; i < n; ++i) {
         auto coord = texture_coord[i];
-        instance.texture_coord[i * 2] = get<0>(coord);
-        instance.texture_coord[i * 2 + 1] = get<1>(coord);
+        instance.textureCoord[i * 2] = get<0>(coord);
+        instance.textureCoord[i * 2 + 1] = get<1>(coord);
     }
-    instance.vertex_cnt = n;
-    instance.material_name = material_name;
+    instance.vertexCnt = n;
+    instance.materialName = material_name;
     instance.modelMat = glm::mat4(1.0f);
     instance.position = glm::vec3(0.0f, 0.0f, 0.0f);
     return instance;
@@ -187,9 +187,9 @@ inline Model Model::getCube() {
             1.0f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f,
     };
 
-    instance.vertex_cnt = 36;
+    instance.vertexCnt = 36;
     instance.vertices = vertices_data;
-    instance.texture_coord = texture_coord_data;
+    instance.textureCoord = texture_coord_data;
     instance.normals = normals_data;
     instance.modelMat = glm::mat4(1.0f);
     return instance;
@@ -202,14 +202,16 @@ inline Model Model::getRandomCube() {
                                     Rand::gen_float() * glm::radians(180.0f),
                                     randomVec3(0.0, 1.0));
     baseCube.modelMat = glm::translate(baseCube.modelMat, randomVec3(-3, 0));
+    baseCube.material = Material(randomVec3(0.5, 1.0));
     return baseCube;
 }
 
 
 inline Model Model::getWoodenBox() {
     auto baseCube = getRandomCube();
-    baseCube.use_texture = true;
-    baseCube.diffuse_textureId = create_wooden_box_texture();
+    baseCube.useTexture = true;
+    baseCube.diffuseTextureId = createBoxDiffuseTexture();
+    baseCube.specularTextureId = createBoxSpecularTexture();
     return baseCube;
 }
 
@@ -226,14 +228,14 @@ inline Model Model::getTriangle() {
             0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    instance.vertex_cnt = 3;
+    instance.vertexCnt = 3;
     instance.vertices = vertices_data;
-    instance.texture_coord = texture_coord_data;
+    instance.textureCoord = texture_coord_data;
     instance.normals = normals_data;
     instance.position = glm::vec3(0.0f, 2.0f, -2.0f);
     instance.modelMat = glm::translate(glm::mat4(1.0f), instance.position);
-    instance.use_texture = true;
-    instance.diffuse_textureId = create_wooden_box_texture();
+    instance.useTexture = true;
+    instance.diffuseTextureId = createBoxDiffuseTexture();
 
     return instance;
 }

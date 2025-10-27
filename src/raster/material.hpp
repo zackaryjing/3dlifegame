@@ -3,12 +3,16 @@
 #include "raster/ray.hpp"
 #include "raster/texture.hpp"
 #include "raster/utils.hpp"
+#include "sphere.hpp"
 
 class material {
 public:
     virtual ~material() = default;
     virtual bool scatter(const ray &r_in, const hit_record &rec,
                          vec3 &attenuation, ray &scatterd) const = 0;
+    virtual vec3 emitted(float u, float v, const vec3 &p) const {
+        return vec3(0, 0, 0);
+    }
 };
 
 inline vec3 random_in_unit_sphere() {
@@ -53,7 +57,7 @@ public:
                          vec3 &attenuation, ray &scattered) const {
         vec3 target = rec.p + rec.normal + random_in_unit_sphere();
         scattered = ray(rec.p, target - rec.p);
-        attenuation = albedo->value(0, 0, rec.p);
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 };
@@ -103,4 +107,17 @@ public:
         }
         return true;
     }
+};
+
+class diffuse_light : public material {
+public:
+    diffuse_light(texture *a) : emit(a) {}
+    virtual bool scatter(const ray &r_in, const hit_record &rec,
+                         vec3 &attenuation, ray &scattered) const {
+        return false;
+    }
+    virtual vec3 emitted(float u, float v, const vec3 &p) const {
+        return emit->value(u, v, p);
+    }
+    texture *emit;
 };

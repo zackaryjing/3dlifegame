@@ -64,8 +64,9 @@ public:
         groupShader.setVec3("material.color", model->material.color);
         groupShader.setVec3("material.specular", model->material.specular);
         groupShader.setFloat("material.shininess", model->material.shininess);
-        groupShader.setBool("material.useTexture", model->use_texture);
+        groupShader.setBool("material.useTexture", model->useTexture);
         groupShader.setInt("material.texDiffuse", 1);
+        groupShader.setInt("material.texSpecular", 2);
     }
 
     void resetTime() {
@@ -78,6 +79,8 @@ public:
 
     void drawGroups(const glm::mat4 &view, const glm::mat4 &projection,
                     Light &light, const glm::vec3 cameraPos) {
+        static unsigned int lastDiffuseTexture = UINT_MAX;
+        static unsigned int lastSpecularTexture = UINT_MAX;
         groupShader.use();
         setCommonUniform(view, projection, light, cameraPos);
         for (const auto &model: modelGroup) {
@@ -96,9 +99,15 @@ public:
             //                     glm::vec3(0.5f, 1.0f, 0.0f));
 
             groupShader.setMatrix4("model", model->modelMat);
-            if (model->use_texture) {
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, model->diffuse_textureId);
+            if (model->useTexture) {
+                if (model->diffuseTextureId != lastDiffuseTexture) {
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, model->diffuseTextureId);
+                }
+                if (model->specularTextureId != lastSpecularTexture) {
+                    glActiveTexture(GL_TEXTURE2);
+                    glBindTexture(GL_TEXTURE_2D, model->specularTextureId);
+                }
             }
             glDrawArrays(GL_TRIANGLES, model->dataPos.first,
                          model->dataPos.second);

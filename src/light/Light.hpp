@@ -14,8 +14,6 @@ using std::shared_ptr;
 
 
 class Light {
-    unsigned int lightVAO;
-
 public:
     Light(const glm::vec3 &ambientColor, const glm::vec3 &diffuseColor,
           const glm::vec3 &specularColor, const glm::vec3 &lightColor,
@@ -45,13 +43,14 @@ public:
     }
 
     void propertySpin(float curTime);
-    void setCommonUniform(glm::mat4 view, glm::mat4 projection) {
+    void setCommonUniform(const glm::mat4 &view,
+                          const glm::mat4 &projection) const {
         lightShader.setInt("ourTexture", 0);
         lightShader.setMatrix4("view", view);
         lightShader.setMatrix4("projection", projection);
     }
 
-    void setLightUniform() {
+    void setLightUniform() const {
         lightShader.setVec3("light.position", position);
         lightShader.setVec3("light.ambient", ambientColor);
         lightShader.setVec3("light.diffuse", diffuseColor);
@@ -78,8 +77,6 @@ inline Light::Light(const glm::vec3 &ambientColor,
                     const glm::vec3 &pos) :
     ambientColor(ambientColor), diffuseColor(diffuseColor),
     specularColor(specularColor), lightColor(lightColor), position(pos) {
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
     lightShader =
             Shader(lighting_vshader, lighting_fshader, ShaderParamType::PATH);
     lightModel = make_shared<Model>(Model::getCube());
@@ -89,8 +86,8 @@ inline Light::Light(const glm::vec3 &ambientColor,
             duration, curTime, true, glm::vec3(0.0, 0.0, 1.0), 360,
             lightModel->modelMat, this->position);
     lightColorAnimation =
-            new Vec3SinAnimation(duration, curTime, true, glm::vec3(0.5),
-                                 {duration, duration / 2, duration / 4},
+            new Vec3SinAnimation(duration * 4, curTime, true, glm::vec3(0.5),
+                                 {duration / 2, duration * 2, duration},
                                  glm::vec3(0.75), phase, this->lightColor);
 }
 

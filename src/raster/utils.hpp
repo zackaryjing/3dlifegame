@@ -7,6 +7,7 @@
 
 using std::vector;
 using std::chrono::system_clock;
+using std::string;
 
 
 class Rand {

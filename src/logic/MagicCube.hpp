@@ -77,12 +77,12 @@ public:
     void setColor() const {
         const vector colors = {0.67f, 0.84f, 0.01f, 0.34f, 0.17f, 0.51f};
         for (auto &cube: cubes) {
-            cube->texture_coord = vector(72, 1.01f);
+            cube->textureCoord = vector(72, 1.01f);
         }
         for (int face = 0; face < 6; ++face) {
             for (const auto &cube_index: cubeIndex[face]) {
                 for (const auto &face_index: cubeFaceIndex[face]) {
-                    cubes[cube_index]->texture_coord[face_index * 2] =
+                    cubes[cube_index]->textureCoord[face_index * 2] =
                             colors[face];
                 }
             }

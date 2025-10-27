@@ -45,6 +45,7 @@ add_library(common_headers INTERFACE
         src/logic/MagicCube.hpp
         src/animation/Animation.hpp
         src/animation/AnimationManager.hpp
+        src/skybox/Skybox.hpp
         src/raster/vec3.hpp
         src/raster/ray.hpp
         src/raster/hitable.hpp
@@ -57,6 +58,7 @@ add_library(common_headers INTERFACE
         src/raster/texture.hpp
         src/raster/perlin.hpp
         src/raster/scene.hpp
+        src/raster/xy_rect.hpp
 )
 
 set(STB_INCLUDE_DIR "${VCPKG_INSTALLED_DIR}/include")
@@ -110,6 +112,6 @@ add_executable(LifeGameImGuiTest src/tests/TestImGui.cpp)
 target_link_libraries(LifeGameImGuiTest PUBLIC common)
 
 find_package(OpenMP REQUIRED)
-add_executable(LifeGameRasterTest src/tests/TestRaster.cpp)
+add_executable(LifeGameRasterTest src/tests/TestRaster.cpp src/texture/stb_image_impl.cpp)
 target_link_libraries(LifeGameRasterTest PUBLIC common PRIVATE OpenMP::OpenMP_CXX)
 target_compile_options(LifeGameRasterTest PRIVATE -fopenmp)

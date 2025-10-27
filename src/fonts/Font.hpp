@@ -44,6 +44,8 @@ public:
                            static_cast<float>(Window::height));
         fontShader.setMatrix4("projection", projection);
         fontShader.setInt("text", 0);
+        GLint oldVAO;
+        glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &oldVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(VAO);
 
@@ -68,8 +70,7 @@ public:
             glDrawArrays(GL_TRIANGLES, 0, 6);
             x += static_cast<float>(advance >> 6) * scale;
         }
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindVertexArray(oldVAO); // restore VAO to allow in-order draw calls
     }
 
     void setUpFontRender() {
