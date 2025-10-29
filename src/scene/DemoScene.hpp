@@ -8,8 +8,9 @@
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
-#include "light/Light.hpp"
-#include "logic/MagicCube.hpp"
+#include "light/DirLight.hpp"
+#include "light/LightManager.hpp"
+#include "light/PointLight.hpp"
 #include "scene/Scene.hpp"
 #include "skybox/Skybox.hpp"
 #include "ui/CursorInput.hpp"
@@ -20,7 +21,7 @@ using std::vector;
 
 class DemoScene final : public Scene {
 public:
-    Light light;
+    LightManager lightManager;
     FontPixelStyle font;
     Gizmo gizmo;
     Camera camera;

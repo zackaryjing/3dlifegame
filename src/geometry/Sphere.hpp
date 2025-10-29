@@ -48,7 +48,9 @@ public:
     }
 
     Model toModel() {
-        return Model::genModel(points, faceIndices,
-                               ModelNormalGenType::VERTEX_BASED);
+        return Model::genModel(
+                points, faceIndices,
+                Material(Rand::genVec3(0.0, 0.7), glm::vec3{0.1, 0.6, 1.0}),
+                ModelNormalGenType::VERTEX_BASED);
     }
 };

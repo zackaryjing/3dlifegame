@@ -17,7 +17,6 @@
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
-#include "light/Light.hpp"
 #include "model/Model.hpp"
 #include "scene/SceneManager.hpp"
 #include "ui/CursorInput.hpp"
@@ -69,9 +68,9 @@ void MagicCubeScene::render() {
 
         const float curTime = static_cast<float>(glfwGetTime());
         animationManager.update(curTime);
-        light.drawLight(view, projection);
+        lightManager.drawLights(view, projection);
         for (auto group: groups) {
-            group.drawGroups(view, projection, light, camera.cameraPos);
+            group.drawGroups(view, projection, lightManager, camera.cameraPos);
         }
         gizmo.drawGroups(view, camera.cameraPos);
         font.drawText(getText(io), 25.0f, 25.0f, 2.0f,
@@ -97,14 +96,16 @@ void MagicCubeScene::render() {
 
 vector<float> MagicCubeScene::genGLData() const {
     vector<shared_ptr<Model>> models = {};
-    models.push_back(light.lightModel);
+    for (const auto &light: lightManager.getModel()) {
+        models.push_back(light);
+    }
 
-    for (auto group: groups) {
+    for (const auto &group: groups) {
         for (auto model: group.modelGroup) {
             models.push_back(model);
         }
     }
-    for (auto model: gizmo.modelGroup) {
+    for (const auto &model: gizmo.modelGroup) {
         models.push_back(model);
     }
 

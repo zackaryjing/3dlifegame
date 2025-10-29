@@ -43,11 +43,11 @@ public:
         triangleAltitude = edgeLength * sqrt(3.0f) / 2.0f;
         const float radiusDiff =
                 crossSectionCircumradius - crossSectionInradius;
-        midHeight = static_cast<float>(sqrt(
-                triangleAltitude * triangleAltitude - radiusDiff * radiusDiff));
-        pyramidAltitude = static_cast<float>(
-                sqrt(edgeLength * edgeLength -
-                     crossSectionCircumradius * crossSectionCircumradius));
+        midHeight = std::sqrt(triangleAltitude * triangleAltitude -
+                              radiusDiff * radiusDiff);
+        pyramidAltitude =
+                std::sqrt(edgeLength * edgeLength -
+                          crossSectionCircumradius * crossSectionCircumradius);
         sphereCircumradius = midHeight / 2.0f + pyramidAltitude;
         sphereRadiusEdgeRatio = sphereCircumradius / edgeLength;
         points = getPoints();
@@ -78,6 +78,7 @@ public:
     Model toModel() {
         // showVFVec3(points);
         return Model::genModel(points, faceIndices,
+                               Material(Rand::genVec3(0.0, 1.0)),
                                ModelNormalGenType::VERTEX_BASED);
     }
 };

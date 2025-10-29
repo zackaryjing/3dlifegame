@@ -33,6 +33,11 @@ add_library(common_headers INTERFACE
         src/utils/Type.hpp
         src/debug/Error.hpp
         src/fonts/Font.hpp
+        src/light/Light.hpp
+        src/light/PointLight.hpp
+        src/light/DirLight.hpp
+        src/light/SpotLight.hpp
+        src/light/LightManager.hpp
         src/fonts/BmpLoader.hpp
         src/group/Group.hpp
         src/model/Material.hpp

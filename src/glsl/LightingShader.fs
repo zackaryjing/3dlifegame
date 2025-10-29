@@ -5,10 +5,6 @@ in vec3 normal;
 in vec3 fragPos;
 
 struct Light {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
     vec3 color;
 };
 

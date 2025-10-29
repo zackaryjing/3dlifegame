@@ -22,26 +22,26 @@ hitable *random_scene() {
     int i = 1;
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
-            float choose_mat = Rand::gen_float();
-            vec3 center(a + 0.9 * Rand::gen_float(), 0.2,
-                        b + 0.9 * Rand::gen_float());
+            float choose_mat = Rand::genFloat();
+            vec3 center(a + 0.9 * Rand::genFloat(), 0.2,
+                        b + 0.9 * Rand::genFloat());
             if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
                 if (choose_mat < 0.8) {
                     list[i++] = new moving_sphere(
                             center,
-                            center + vec3(0, 0.5 * Rand::gen_float(), 0), 0.0,
+                            center + vec3(0, 0.5 * Rand::genFloat(), 0), 0.0,
                             1.0, 0.2,
                             new lambertian(new constant_texture(
-                                    {Rand::gen_float() * Rand::gen_float(),
-                                     Rand::gen_float() * Rand::gen_float(),
-                                     Rand::gen_float() * Rand::gen_float()})));
+                                    {Rand::genFloat() * Rand::genFloat(),
+                                     Rand::genFloat() * Rand::genFloat(),
+                                     Rand::genFloat() * Rand::genFloat()})));
                 } else if (choose_mat < 0.95) {
                     list[i++] = new sphere(
                             center, 0.2,
-                            new metal(vec3(0.5f * (1 + Rand::gen_float()),
-                                           0.5f * (1 + Rand::gen_float()),
-                                           0.5f * (1 + Rand::gen_float())),
-                                      0.5f * Rand::gen_float()));
+                            new metal(vec3(0.5f * (1 + Rand::genFloat()),
+                                           0.5f * (1 + Rand::genFloat()),
+                                           0.5f * (1 + Rand::genFloat())),
+                                      0.5f * Rand::genFloat()));
                 } else {
                     list[i++] = new sphere(center, 0.2, new dielectric(1.5));
                 }
@@ -118,9 +118,9 @@ hitable *simple_light() {
     list[1] = new sphere(vec3(0, 2, 0), 2, new lambertian(pertext));
     list[2] = new sphere(
             vec3(0, 7, 0), 2,
-            new diffuse_light(new constant_texture(vec3(0.7, 0.7, 0.7))));
+            new diffuse_light(new constant_texture(vec3(4, 4, 4))));
     list[3] = new xy_rect(
             3, 5, 1, 3, -2,
-            new diffuse_light(new constant_texture({0.7, 0.7, 0.7})));
+            new diffuse_light(new constant_texture({4, 4, 4})));
     return new hitable_list(list, 4);
 }

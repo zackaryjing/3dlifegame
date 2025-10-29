@@ -3,8 +3,11 @@
 #include <bitset>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 
 using std::bitset;
+using std::cout;
+using std::endl;
 
 class Animation {
 public:
@@ -38,9 +41,7 @@ public:
                     const bool loop, const glm::vec3 axis, const float degree,
                     glm::mat4 &modelMat) :
         Animation(duration, startTime, loop), axis(axis), degree(degree),
-        modelMat(modelMat) {
-        startMat = modelMat;
-    }
+        modelMat(modelMat), startMat(modelMat) {}
     void begin() override { startMat = modelMat; }
 
 
@@ -100,6 +101,8 @@ public:
 class Vec3SinAnimation final : public Animation {
 public:
     glm::vec3 amplitude;
+
+
     glm::vec3 period;
     glm::vec3 &phase;
     glm::vec3 &vec;
@@ -107,8 +110,8 @@ public:
     glm::vec3 angularFrequency;
     glm::vec3 offset;
     Vec3SinAnimation(const float duration, const float startTime,
-                     const bool loop, glm::vec3 amplitude, glm::vec3 period,glm::vec3 offset,
-                     glm::vec3 &phase, glm::vec3 &vec) :
+                     const bool loop, glm::vec3 amplitude, glm::vec3 period,
+                     glm::vec3 offset, glm::vec3 &phase, glm::vec3 &vec) :
         Animation(duration, startTime, loop), amplitude(amplitude),
         period(period), phase(phase), vec(vec), offset(offset) {
         angularFrequency = glm::vec3(2 * M_PI, 2 * M_PI, 2 * M_PI) / period;

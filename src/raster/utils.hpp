@@ -3,11 +3,12 @@
 #include <istream>
 #include <random>
 #include <sstream>
+#include "glm/glm.hpp"
 
 
+using std::string;
 using std::vector;
 using std::chrono::system_clock;
-using std::string;
 
 
 class Rand {
@@ -18,7 +19,13 @@ class Rand {
     static inline auto generator = std::mt19937(seed);
 
 public:
-    static float gen_float() { return dist(generator); }
+    static float genFloat() { return dist(generator); }
+    static glm::vec3 genVec3(const float min, const float max) {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_real_distribution dis(min, max);
+        return glm::vec3(dis(gen), dis(gen), dis(gen));
+    }
 };
 
 enum class SplitMode {

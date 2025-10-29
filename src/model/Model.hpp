@@ -53,10 +53,12 @@ public:
     static Model genModel(VFVec3 vertices, const VIVec3 &faceIndices,
                           ModelNormalGenType model_normal_gen);
 
+    static Model genModel(VFVec3 vertices, const VIVec3 &faceIndices,
+                          const Material &material,
+                          ModelNormalGenType model_normal_gen);
+
     static Model genModel(VFVec3 vertices, VFVec3 normals, VFVec2 texture_coord,
                           string material_name);
-
-    static glm::vec3 randomVec3(float min, float max);
 
     static Model getCube();
 
@@ -66,6 +68,15 @@ public:
 
     static Model getTriangle();
 };
+
+
+inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
+                             const Material &material,
+                             ModelNormalGenType model_normal_gen) {
+    Model instance = genModel(vertices, faceIndices, model_normal_gen);
+    instance.material = material;
+    return instance;
+}
 
 
 inline Model Model::genModel(VFVec3 vertices, const VIVec3 &faceIndices,
@@ -140,12 +151,7 @@ inline Model Model::genModel(VFVec3 vertices, VFVec3 normals,
     instance.position = glm::vec3(0.0f, 0.0f, 0.0f);
     return instance;
 }
-inline glm::vec3 Model::randomVec3(const float min, const float max) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    std::uniform_real_distribution dis(min, max);
-    return glm::vec3(dis(gen), dis(gen), dis(gen));
-}
+
 inline Model Model::getCube() {
     Model instance;
     const vector vertices_data = {
@@ -197,12 +203,13 @@ inline Model Model::getCube() {
 
 inline Model Model::getRandomCube() {
     auto baseCube = getCube();
-    baseCube.position = randomVec3(-3, 0);
+    baseCube.position = Rand::genVec3(-3, 0);
     baseCube.modelMat = glm::rotate(glm::mat4(1.0f),
-                                    Rand::gen_float() * glm::radians(180.0f),
-                                    randomVec3(0.0, 1.0));
-    baseCube.modelMat = glm::translate(baseCube.modelMat, randomVec3(-3, 0));
-    baseCube.material = Material(randomVec3(0.5, 1.0));
+                                    Rand::genFloat() * glm::radians(180.0f),
+                                    Rand::genVec3(0.0, 1.0));
+    baseCube.modelMat = glm::translate(baseCube.modelMat, Rand::genVec3(-3, 0));
+    baseCube.material =
+            Material(Rand::genVec3(0.2, 0.5), glm::vec3{0.2, 0.5, 1.0});
     return baseCube;
 }
 

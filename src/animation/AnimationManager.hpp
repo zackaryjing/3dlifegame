@@ -52,8 +52,9 @@ public:
         vector<Animation *> endedAnimation;
         for (auto &animation: currentAnimation) {
             animation->update(curTime);
-            if (animation->endTime < curTime) {
+            if (animation->endTime <= curTime) {
                 if (animation->loop == true) {
+                    animation->begin();
                     animation->startTime = curTime;
                     animation->endTime = curTime + animation->duration;
                 } else {

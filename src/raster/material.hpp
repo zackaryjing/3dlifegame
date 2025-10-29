@@ -18,8 +18,8 @@ public:
 inline vec3 random_in_unit_sphere() {
     vec3 p;
     do {
-        p = 2.0 * vec3(Rand::gen_float(), Rand::gen_float(),
-                       Rand::gen_float()) -
+        p = 2.0 * vec3(Rand::genFloat(), Rand::genFloat(),
+                       Rand::genFloat()) -
             vec3(1, 1, 1);
     } while (dot(p, p) >= 1.0);
     return p;
@@ -100,7 +100,7 @@ public:
             scattered = ray(rec.p, reflected);
             reflect_prob = 1.0;
         }
-        if (Rand::gen_float() < reflect_prob) {
+        if (Rand::genFloat() < reflect_prob) {
             scattered = ray(rec.p, reflected);
         } else {
             scattered = ray(rec.p, refracted);

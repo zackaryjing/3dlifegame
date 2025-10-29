@@ -8,7 +8,7 @@
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
-#include "light/Light.hpp"
+#include "light/PointLight.hpp"
 #include "logic/MagicCube.hpp"
 #include "scene/Scene.hpp"
 #include "ui/CursorInput.hpp"
@@ -18,7 +18,6 @@
 class MagicCubeScene final : public Scene {
 public:
     vector<Group> groups;
-    Light light = Light({0.7f, 0.7f, 0.7f}, {0.0f, 5.0f, 0.0f});
     FontPixelStyle font;
     Gizmo gizmo;
     Camera camera;
@@ -28,6 +27,7 @@ public:
     KeyboardMoveControl keyboard_move_control;
     [[nodiscard]] vector<float> genGLData() const override;
     GLFWwindow *window;
+    LightManager lightManager;
     bool isRendering = false;
 
     void takeControl() override {
@@ -44,6 +44,12 @@ public:
 
     explicit MagicCubeScene(GLFWwindow *window) :
         Scene(), cursor(camera), window(window) {
+        lightManager = LightManager(
+                vector<DirLight>{},
+                vector<PointLight>{
+                        PointLight(glm::vec3{1}, glm::vec3{0, 5, 0}, 0),
+                        PointLight(glm::vec3{0.5}, glm::vec3{3, 5, 0}, 1)},
+                vector<SpotLight>{});
         name = "Magic Cube Scene";
         groups.push_back(magicCube.toGroup());
         glGenBuffers(1, &VBO);

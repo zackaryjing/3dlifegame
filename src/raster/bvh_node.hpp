@@ -100,7 +100,7 @@ inline int box_z_compare(const void *a, const void *b) {
 
 
 inline bvh_node::bvh_node(hitable **l, int n, float time0, float time1) {
-    int axis = static_cast<int>(3 * Rand::gen_float());
+    int axis = static_cast<int>(3 * Rand::genFloat());
 
     // single hitable then do no sort;
     // hitable list will be sorted base on axis randomly chosen

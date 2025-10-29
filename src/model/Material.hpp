@@ -18,6 +18,9 @@ public:
         shininess(shininess), name(name) {};
     explicit Material(const glm::vec3 color) :
         Material(color, color, color, color, 32.0f, "Same-Color-Material") {}
+    Material(const glm::vec3 color, const glm::vec3 ratio) :
+        Material(color, color * ratio.x, color * ratio.y, color * ratio.z,
+                 32.0f, "Same-Color-Material") {}
     Material() :
         color(glm::vec3(1.0f, 0.5f, 0.31f)),
         ambient(glm::vec3(1.0f, 0.5f, 0.31f)),

@@ -33,18 +33,16 @@ vec3 color(const ray &r, hitable *world, int depth) {
             return emitted;
         }
     } else {
-        vec3 unit_direction = unit(r.direction());
-        float t = 0.5 * (unit_direction.y() + 1.0f);
-        return (1.0f - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0);
+        return vec3(0, 0, 0);
     }
 }
 
 // out2 22.38
 // out3 7.54
 int main() {
-    int nx = 150 * 2.5;
-    int ny = 100 * 2.5;
-    int ns = 50;
+    int nx = 150 * 2.0;
+    int ny = 100 * 2.0;
+    int ns = 200;
     ofstream file("./out4.bmp", std::ios::binary);
     int rowStride = ((nx * 3 + 3) & (~3));
 
@@ -69,7 +67,7 @@ int main() {
     vec3 lookat(0.0, 0.0, 0.0);
     float aperture = 0.0;
     float dist_to_focus = (lookfrom - lookat).length() * 0.9f;
-    camera cam(lookfrom, lookat, vec3(0, 1, 0), 20,
+    camera cam(lookfrom, lookat, vec3(0, 1, 0), 70,
                static_cast<float>(nx) / static_cast<float>(ny), aperture,
                dist_to_focus, 0.0, 1.0);
     int done = 0;
@@ -86,9 +84,9 @@ int main() {
 
             vec3 col(0, 0, 0);
             for (int s = 0; s < ns; s++) {
-                float u = (static_cast<float>(i) + Rand::gen_float()) /
+                float u = (static_cast<float>(i) + Rand::genFloat()) /
                           static_cast<float>(nx);
-                float v = (static_cast<float>(j) + Rand::gen_float()) /
+                float v = (static_cast<float>(j) + Rand::genFloat()) /
                           static_cast<float>(ny);
                 ray r = cam.get_ray(u, v);
                 col += color(r, world, 0);

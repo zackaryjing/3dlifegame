@@ -14,7 +14,7 @@
 #include "fonts/Font.hpp"
 #include "group/Gizmo.hpp"
 #include "group/Group.hpp"
-#include "light/Light.hpp"
+#include "light/PointLight.hpp"
 #include "model/Model.hpp"
 #include "scene/DemoScene.hpp"
 #include "scene/SceneManager.hpp"
@@ -31,14 +31,20 @@ void DemoScene::addWidget(const float curTime, const ImGuiIO &io) {
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                     1000.0f / io.Framerate, io.Framerate);
-        if (ImGui::Checkbox("LightSpinning", &light.lightTurning)) {
-            if (light.lightTurning) {
-                light.resetAnimationTime(curTime);
-                animationManager.addAnimation(light.lightPosAnimation);
-                animationManager.addAnimation(light.lightColorAnimation);
-            } else {
-                animationManager.removeAnimation(light.lightPosAnimation);
-                animationManager.removeAnimation(light.lightColorAnimation);
+        ImGui::Text("Current animation count: %ld",
+                    animationManager.currentAnimation.size());
+        for (auto &light: lightManager.pointLights) {
+            string label = "LightSpinning" + to_string(light->id);
+            if (ImGui::Checkbox(label.c_str(), &light->lightTurning)) {
+                if (light->lightTurning) {
+                    light->resetAnimationTime(curTime);
+                    animationManager.addAnimation(light->lightPosAnimation);
+                    animationManager.addAnimation(light->lightColorAnimation);
+                } else {
+                    animationManager.removeAnimation(light->lightPosAnimation);
+                    animationManager.removeAnimation(
+                            light->lightColorAnimation);
+                }
             }
         }
         int group_id = 0;
@@ -60,9 +66,11 @@ void DemoScene::render() {
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
-    if (light.lightTurning) {
-        animationManager.addAnimation(light.lightPosAnimation);
-        animationManager.addAnimation(light.lightColorAnimation);
+    for (const auto &light: lightManager.pointLights) {
+        if (light->lightTurning) {
+            animationManager.addAnimation(light->lightPosAnimation);
+            animationManager.addAnimation(light->lightColorAnimation);
+        }
     }
 
     const auto &io = ImGui::GetIO();
@@ -71,7 +79,8 @@ void DemoScene::render() {
         glfwPollEvents();
         glCheckError();
         GlobalKeyboard::processInput(window, deltaTime, camera);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        // glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0, 0.0, 0.0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(VAO);
 
@@ -80,14 +89,14 @@ void DemoScene::render() {
 
         const auto curTime = static_cast<float>(glfwGetTime());
         animationManager.update(curTime);
-        light.drawLight(view, projection);
+        lightManager.drawLights(view, projection);
         for (auto group: groups) {
-            group.drawGroups(view, projection, light, camera.cameraPos);
+            group.drawGroups(view, projection, lightManager, camera.cameraPos);
         }
         gizmo.drawGroups(view, camera.cameraPos);
+        skybox.drawSkybox(view, projection);
         font.drawText(getText(), 25.0f, 25.0f, 2.0f,
                       glm::vec3(0.5f, 0.8f, 0.2f));
-        skybox.drawSkybox(view, projection);
 
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -110,7 +119,9 @@ void DemoScene::render() {
 vector<float> DemoScene::genGLData() const {
     vector<shared_ptr<Model>> models = {};
     models.push_back(skybox.skyboxModel);
-    models.push_back(light.lightModel);
+    for (auto light: lightManager.getModel()) {
+        models.push_back(light);
+    }
 
     for (auto group: groups) {
         for (auto model: group.modelGroup) {

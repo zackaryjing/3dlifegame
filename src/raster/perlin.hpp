@@ -83,7 +83,7 @@ public:
 static float *perlin_generate_float() {
     const auto p = new float[256];
     for (int i = 0; i < 256; ++i) {
-        p[i] = Rand::gen_float();
+        p[i] = Rand::genFloat();
     }
     return p;
 }
@@ -91,8 +91,8 @@ static float *perlin_generate_float() {
 static vec3 *perlin_generate() {
     const auto p = new vec3[256];
     for (int i = 0; i < 256; ++i) {
-        p[i] = unit(vec3{-1 + 2 * Rand::gen_float(), -1 + 2 * Rand::gen_float(),
-                         -1 + 2 * Rand::gen_float()});
+        p[i] = unit(vec3{-1 + 2 * Rand::genFloat(), -1 + 2 * Rand::genFloat(),
+                         -1 + 2 * Rand::genFloat()});
     }
     return p;
 }
@@ -100,7 +100,7 @@ static vec3 *perlin_generate() {
 
 void permute(int *p, int n) {
     for (int i = n - 1; i > 0; i--) {
-        int target = static_cast<int>(Rand::gen_float() * (i + 1));
+        int target = static_cast<int>(Rand::genFloat() * (i + 1));
         int tmp = p[i];
         p[i] = p[target];
         p[target] = tmp;

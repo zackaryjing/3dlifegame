@@ -3,10 +3,13 @@
 
 #include "geometry/Icosahedron.hpp"
 #include "geometry/Sphere.hpp"
-#include "light/Light.hpp"
+#include "light/LightManager.hpp"
+#include "light/PointLight.hpp"
 #include "model/Model.hpp"
 #include "model/ModelLoader.hpp"
 
+
+class LightManager;
 using std::make_shared;
 using std::shared_ptr;
 using std::string;
@@ -48,20 +51,19 @@ public:
         }
     }
 
-    void setCommonUniform(glm::mat4 view, glm::mat4 projection, Light &light,
-                          glm::vec3 cameraPos) {
+    void setCommonUniform(const glm::mat4 &view, const glm::mat4 &projection,
+                          const LightManager &lightManager,
+                          const glm::vec3 cameraPos) {
         groupShader.setMatrix4("view", view);
         groupShader.setMatrix4("projection", projection);
         groupShader.setVec3("viewPos", cameraPos);
-        groupShader.setVec3("light.position", light.position);
-        groupShader.setVec3("light.ambient", light.ambientColor);
-        groupShader.setVec3("light.diffuse", light.diffuseColor);
-        groupShader.setVec3("light.specular", light.specularColor);
-        groupShader.setVec3("light.color", light.lightColor);
+        lightManager.useLightUniform(groupShader);
     }
 
-    void setModelUniform(shared_ptr<Model> model) {
+    void setModelUniform(const shared_ptr<Model> &model) {
         groupShader.setVec3("material.color", model->material.color);
+        groupShader.setVec3("material.ambient", model->material.ambient);
+        groupShader.setVec3("material.diffuse", model->material.diffuse);
         groupShader.setVec3("material.specular", model->material.specular);
         groupShader.setFloat("material.shininess", model->material.shininess);
         groupShader.setBool("material.useTexture", model->useTexture);
@@ -78,11 +80,11 @@ public:
     }
 
     void drawGroups(const glm::mat4 &view, const glm::mat4 &projection,
-                    Light &light, const glm::vec3 cameraPos) {
+                    LightManager &lightManager, const glm::vec3 cameraPos) {
         static unsigned int lastDiffuseTexture = UINT_MAX;
         static unsigned int lastSpecularTexture = UINT_MAX;
         groupShader.use();
-        setCommonUniform(view, projection, light, cameraPos);
+        setCommonUniform(view, projection, lightManager, cameraPos);
         for (const auto &model: modelGroup) {
             setModelUniform(model);
 
