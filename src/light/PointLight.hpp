@@ -96,9 +96,9 @@ inline PointLight::PointLight(const glm::vec3 &ambientColor,
     attenuationConstant(constant), attenuationLinear(linear),
     attenuationQuadratic(quadratic) {
     auto curTime = static_cast<float>(glfwGetTime());
-    lightPosAnimation = new RotatePosAnimation(
-            duration, curTime, true, glm::vec3(0.0, 0.0, 1.0), 360,
-            lightModel->modelMat, this->position);
+    lightPosAnimation =
+            new RotatePosAnimation(duration, curTime, true, Rand::getNorm(),
+                                   360, lightModel->modelMat, this->position);
     lightColorAnimation =
             new Vec3SinAnimation(duration * 4, curTime, true, glm::vec3(0.5),
                                  {duration / 2, duration * 2, duration},

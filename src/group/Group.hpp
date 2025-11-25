@@ -80,26 +80,14 @@ public:
     }
 
     void drawGroups(const glm::mat4 &view, const glm::mat4 &projection,
-                    LightManager &lightManager, const glm::vec3 cameraPos) {
+                    const LightManager &lightManager,
+                    const glm::vec3 cameraPos) {
         static unsigned int lastDiffuseTexture = UINT_MAX;
         static unsigned int lastSpecularTexture = UINT_MAX;
         groupShader.use();
         setCommonUniform(view, projection, lightManager, cameraPos);
         for (const auto &model: modelGroup) {
             setModelUniform(model);
-
-            // float curTime;
-            // if (modelTurning) {
-            //     curTime = static_cast<float>(glfwGetTime()) - startTime +
-            //               pauseTime;
-            // } else {
-            //     curTime = pauseTime;
-            // }
-            // model->modelMat =
-            //         glm::rotate(model->modelMat, curTime *
-            //         glm::radians(50.0f),
-            //                     glm::vec3(0.5f, 1.0f, 0.0f));
-
             groupShader.setMatrix4("model", model->modelMat);
             if (model->useTexture) {
                 if (model->diffuseTextureId != lastDiffuseTexture) {

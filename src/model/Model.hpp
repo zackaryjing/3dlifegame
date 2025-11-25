@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <glm/ext/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 #include <memory>
 #include <random>
@@ -209,7 +208,7 @@ inline Model Model::getRandomCube() {
                                     Rand::genVec3(0.0, 1.0));
     baseCube.modelMat = glm::translate(baseCube.modelMat, Rand::genVec3(-3, 0));
     baseCube.material =
-            Material(Rand::genVec3(0.2, 0.5), glm::vec3{0.2, 0.5, 1.0});
+            Material(Rand::genVec3(0.2, 0.3), glm::vec3{0.1, 0.4, 0.8});
     return baseCube;
 }
 
@@ -217,6 +216,7 @@ inline Model Model::getRandomCube() {
 inline Model Model::getWoodenBox() {
     auto baseCube = getRandomCube();
     baseCube.useTexture = true;
+    baseCube.material.ambient = glm::vec3(0.3, 0.3, 0.3);
     baseCube.diffuseTextureId = createBoxDiffuseTexture();
     baseCube.specularTextureId = createBoxSpecularTexture();
     return baseCube;
@@ -242,6 +242,7 @@ inline Model Model::getTriangle() {
     instance.position = glm::vec3(0.0f, 2.0f, -2.0f);
     instance.modelMat = glm::translate(glm::mat4(1.0f), instance.position);
     instance.useTexture = true;
+    instance.material.ambient = glm::vec3(0.3, 0.3, 0.3);
     instance.diffuseTextureId = createBoxDiffuseTexture();
 
     return instance;

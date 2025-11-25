@@ -59,9 +59,9 @@ public:
         lightShader.use();
         setCommonUniform(view, projection);
         setLightUniform();
-        auto model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        auto model = glm::mat4(1.0);
+        model = glm::translate(model, position) * lightModel->modelMat *
+                glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         lightShader.setMatrix4("model", model);
         glDrawArrays(GL_TRIANGLES, lightModel->dataPos.first,
                      lightModel->dataPos.second);
@@ -75,7 +75,8 @@ inline SpotLight::SpotLight(const glm::vec3 &ambientColor,
                             const glm::vec3 &dir, const float cutOff,
                             const float outerCutOff) :
     Light(ambientColor, diffuseColor, specularColor, lightColor, pos),
-    direction(dir), cutOff(cutOff), outerCutOff(outerCutOff) {
+    direction(dir), cutOff(cos(glm::radians(cutOff))),
+    outerCutOff(cos(glm::radians(outerCutOff))) {
     SpotLight::setModel();
 }
 
@@ -97,4 +98,19 @@ inline void SpotLight::setModel() {
     const auto arrow = ModelLoader::loadModel(model_dir);
     lightModel = make_shared<Model>(arrow);
     lightModel->modelMat = glm::translate(lightModel->modelMat, position);
+    constexpr auto origin = glm::vec3(0.0, 1.0, 0.0);
+    const auto target = glm::normalize(direction);
+    if (const float cosTheta = glm::dot(origin, target); cosTheta < -0.9999) {
+        glm::vec3 axis =
+                normalize(glm::cross(glm::vec3(1.0, 0.0, 0.0), origin));
+        if (glm::length(axis) < 0.0001) {
+            axis = normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), origin));
+        }
+        lightModel->modelMat =
+                glm::rotate(lightModel->modelMat, glm::radians(180.0f), axis);
+    } else if (cosTheta < 0.9999f) {
+        const glm::vec3 axis = glm::cross(origin, target);
+        const float angle = acos(glm::dot(origin, target));
+        lightModel->modelMat = glm::rotate(lightModel->modelMat, angle, axis);
+    }
 }

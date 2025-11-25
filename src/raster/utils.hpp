@@ -26,6 +26,12 @@ public:
         std::uniform_real_distribution dis(min, max);
         return glm::vec3(dis(gen), dis(gen), dis(gen));
     }
+    static glm::vec3 getNorm() {
+        const float u = 2 * M_PI * genFloat();
+        const float v = 2 * genFloat() - 1;
+        const float r = sqrt(1 - v * v);
+        return glm::vec3{r * cos(u), v, r * sin(u)};
+    }
 };
 
 enum class SplitMode {

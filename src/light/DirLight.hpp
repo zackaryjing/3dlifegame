@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/glad.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <iostream>
 
 #include "light/Light.hpp"
@@ -49,9 +51,9 @@ public:
         lightShader.use();
         setCommonUniform(view, projection);
         setLightUniform();
-        auto model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        auto model = glm::mat4(1.0);
+        model = glm::translate(model, position) * lightModel->modelMat *
+                glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         lightShader.setMatrix4("model", model);
         glDrawArrays(GL_TRIANGLES, lightModel->dataPos.first,
                      lightModel->dataPos.second);
@@ -70,8 +72,8 @@ inline DirLight::DirLight(const glm::vec3 &ambientColor,
 
 
 inline DirLight::DirLight(const glm::vec3 &color, const glm::vec3 &position,
-                          const glm::vec3 &dir) :
-    DirLight(color, color, color, color, position, dir) {}
+                          const glm::vec3 &direction) :
+    DirLight(color, color, color, color, position, direction) {}
 
 inline DirLight::DirLight() :
     DirLight(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f),
@@ -84,4 +86,20 @@ inline void DirLight::setModel() {
     const auto arrow = ModelLoader::loadModel(model_dir);
     lightModel = make_shared<Model>(arrow);
     lightModel->modelMat = glm::translate(lightModel->modelMat, position);
+    constexpr auto origin = glm::vec3(0.0, 1.0, 0.0);
+    const auto target = glm::normalize(direction);
+    const float cosTheta = glm::dot(origin, target);
+    if (cosTheta < -0.9999) {
+        glm::vec3 axis =
+                normalize(glm::cross(glm::vec3(1.0, 0.0, 0.0), origin));
+        if (glm::length(axis) < 0.0001) {
+            axis = normalize(glm::cross(glm::vec3(0.0, 1.0, 0.0), origin));
+        }
+        lightModel->modelMat =
+                glm::rotate(lightModel->modelMat, glm::radians(180.0f), axis);
+    } else if (cosTheta < 0.9999f) {
+        const glm::vec3 axis = glm::cross(origin, target);
+        const float angle = acos(glm::dot(origin, target));
+        lightModel->modelMat = glm::rotate(lightModel->modelMat, angle, axis);
+    }
 }

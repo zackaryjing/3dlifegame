@@ -66,7 +66,7 @@ void MagicCubeScene::render() {
         const glm::mat4 view = camera.getView();
         glm::mat4 projection = camera.getProjection();
 
-        const float curTime = static_cast<float>(glfwGetTime());
+        const auto curTime = static_cast<float>(glfwGetTime());
         animationManager.update(curTime);
         lightManager.drawLights(view, projection);
         for (auto group: groups) {

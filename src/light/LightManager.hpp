@@ -24,8 +24,6 @@ public:
     }
     [[nodiscard]] vector<shared_ptr<Model>> getModel() const {
         vector<shared_ptr<Model>> modelList;
-        cout << "size: " << spotLights.size() << " " << dirLights.size() << " "
-             << pointLights.size() << endl;
         for (const auto &light: spotLights) {
             modelList.push_back(light->lightModel);
         }
@@ -49,26 +47,28 @@ public:
         }
     }
     void useLightUniform(const Shader &shader) const {
-        for (const auto &light: spotLights) {
-            light->useLightUniform(shader);
-        }
         for (const auto &light: dirLights) {
             light->useLightUniform(shader);
         }
         for (const auto &light: pointLights) {
             light->useLightUniform(shader);
         }
+        for (const auto &light: spotLights) {
+            light->useLightUniform(shader);
+        }
     }
 
     LightManager() {
-        // dirLights.emplace_back(make_unique<DirLight>(
-        //         glm::vec3{0.2, 0.2, 0.2}, glm::vec3{0.0, 5.0, 0.0},
-        //         glm::vec3{0.0, -1.0, 0.0}));
+        dirLights.emplace_back(make_unique<DirLight>(
+                glm::vec3{0.8, 1.0, 0.8}, glm::vec3{2.0, 2.0, -2.0},
+                glm::vec3{-1.0, -1.0, 1.0}));
         for (int i = 0; i < 4; ++i) {
             pointLights.emplace_back(make_unique<PointLight>(
                     Rand::genVec3(0.7f, 1.0f), Rand::genVec3(-3.0f, 3.0f), i));
         }
-        // spotLights.emplace_back(make_unique<SpotLight>());
+        spotLights.emplace_back(make_unique<SpotLight>(
+                glm::vec3(0.7, 0.8, 0.9), glm::vec3(1.0, 1.0, 1.0),
+                glm::vec3(-1.0, -1.0, -1.0), 12.5, 30.5));
     }
     template<typename DContainer, typename PContainer, typename SContainer>
     explicit LightManager(DContainer &&dir, PContainer &&point,
